@@ -1,0 +1,80 @@
+h1{
+    font-size: 3em;
+    color: #024a7d;
+}
+
+.Main_title {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    align-items: center;
+}
+
+.main_nav{
+    list-style-type: none; /*this removes the bullets for the list*/
+    text-align: center;
+}
+
+nav a {
+    color: #024a7d;
+    font-size: 1.5em;
+}
+
+h2{
+    border: 3px solid #B5B5B5;
+    /*box-shadow: 5px 5px 5px black;*/
+    margin:0 auto;
+    padding: 5px;
+    color: #024a7d;
+}
+
+img{
+    max-width: 100%;
+    max-height: 100%;
+}
+
+button {
+    background: #024a7d;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    
+}
+
+button:hover {
+     background: #ddd;
+}
+
+.dark-mode button {
+    background: #333;
+     color: #fff;
+}
+
+.dark-mode button:hover {
+    background: #555;
+}
+
+.dark-mode .card {
+    background: #2a2a2a;
+    color: #f4f4f4;
+}
+
+
+
+
+
+
+footer {
+    margin-top: 30px;
+    font-size: 0.85rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    border-top: 3px solid #585858;
+    padding-top: 15px;
+}
+
+#social {
+    margin-bottom: 15px;
+}
+
