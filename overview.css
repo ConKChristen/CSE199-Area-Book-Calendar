@@ -1,0 +1,104 @@
+h1{
+    font-size: 3em;
+    color: #024a7d;
+}
+
+.Main_title {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    align-items: center;
+}
+
+.main_nav{
+    list-style-type: none; /*this removes the bullets for the list*/
+    text-align: center;
+    padding-bottom: 2em;
+    border-bottom: 3px solid #585858;
+    border-top: 3px solid #585858;
+    padding-top: 2em;
+}
+
+nav a {
+    color: #024a7d;
+    font-size: 1.5em;
+}
+
+h2{
+    border: 3px solid #B5B5B5;
+    /*box-shadow: 5px 5px 5px black;*/
+    margin:0 auto;
+    padding: 5px;
+    color: #024a7d;
+}
+
+img{
+    max-width: 100%;
+    max-height: 100%;
+}
+
+button {
+    background: #024a7d;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    
+}
+
+button:hover {
+     background: #565656;
+}
+
+.darkModeButton {
+    justify-self: right;
+}
+
+/* Dark Mode */
+.dark-mode button {
+    background: #333;
+     color: #fff;
+}
+
+.dark-mode button:hover {
+    background: #cecece;
+}
+
+.dark-mode .card {
+    background: #2a2a2a;
+    color: #f4f4f4;
+}
+
+.dark-mode {
+    background-color: #1e1e1e;
+    color: #f4f4f4;
+}
+
+.dark-mode header {
+    background: #111;
+}
+
+.dark-mode h1 {
+    color: #118de6;
+}
+
+.dark-mode nav a {
+    color: #118de6;
+}
+
+.dark-mode footer {
+    border-top: 3px solid #ffffff
+}
+
+
+
+@media screen and (min-width: 800px){
+    .main_nav{
+        display: flex;
+        justify-content: space-evenly;
+        list-style-type: none; /*this removes the bullets for the list*/
+    }
+    .navigation {
+        justify-content: space-between;
+    }
+}

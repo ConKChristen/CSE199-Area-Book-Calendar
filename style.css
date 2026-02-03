@@ -12,6 +12,10 @@ h1{
 .main_nav{
     list-style-type: none; /*this removes the bullets for the list*/
     text-align: center;
+    padding-bottom: 2em;
+    border-bottom: 3px solid #585858;
+    border-top: 3px solid #585858;
+    padding-top: 2em;
 }
 
 nav a {
@@ -43,16 +47,23 @@ button {
 }
 
 button:hover {
-     background: #ddd;
+    background: #565656;
 }
 
+.darkModeButton {
+    justify-self: right;
+}
+
+
+
+/* Dark Mode */
 .dark-mode button {
     background: #333;
-     color: #fff;
+    color: #fff;
 }
 
 .dark-mode button:hover {
-    background: #555;
+    background: #cecece;
 }
 
 .dark-mode .card {
@@ -60,10 +71,36 @@ button:hover {
     color: #f4f4f4;
 }
 
+.dark-mode {
+    background-color: #1e1e1e;
+    color: #f4f4f4;
+}
+
+.dark-mode header {
+    background: #111;
+}
+
+.dark-mode h1 {
+    color: #118de6;
+}
+
+.dark-mode nav a {
+    color: #118de6;
+}
+
+.dark-mode .main_nav{
+    border-bottom: 3px solid #ffffff;
+    border-top: 3px solid #ffffff;
+}
+
+.dark-mode footer {
+    border-top: 3px solid #ffffff
+}
 
 
 
 
+/* Footer */
 
 footer {
     margin-top: 30px;
@@ -78,3 +115,16 @@ footer {
     margin-bottom: 15px;
 }
 
+
+
+
+@media screen and (min-width: 800px){
+    .main_nav{
+        display: flex;
+        justify-content: space-evenly;
+        list-style-type: none; /*this removes the bullets for the list*/
+    }
+    .navigation {
+        justify-content: space-between;
+    }
+}

@@ -14,27 +14,28 @@
   <body>
 <header>
     <div class="Main_title">
-        <img src="Rocky Mountain Air.png" alt="Rocky Mountian Air Logo"/>
+        <img src="Rocky Mountain Air.png" alt="Area Book Logo"/>
         <h1>AREA BOOK CALENDAR</h1>
+    </div>
+    <div class = "darkModeButton">
+      <button id="darkModeToggle">Dark Mode</button>
     </div>
     <div class="navigation">
             <nav>
                 <ul class="main_nav">
                     <li><a href="index.html">CALENDAR</a></li>
-                    <li><a href="overview.html">OVERVIEW</a></li>
                     <li><a href="goals.html">GOALS</a></li>
+                    <li><a href="overview.html">OVERVIEW</a></li>
                     <li><a href="#social">SOCIAL LINKS</a></li>
                 </ul>
             </nav>
         </div>
-    <button id="darkModeToggle">Dark Mode</button>
   </header>
-
   <div class = 'calendarjs'>
 
     <p>Log In for Calendar</p>
     <!--Add buttons to initiate auth sequence and sign out-->
-    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
+    <button id="authorize_button" onclick="handleAuthClick()">Sign In</button>
     <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
     
     <pre id="content" style="white-space: pre-wrap;"></pre>
@@ -183,11 +184,13 @@
       Address:
     </h3>
     <p>
-                12345 Valley Height, Billings, Montana, 59105
-            </p>
-        </div>
+      12345 Valley Height, Billings, Montana, 59105
+   </p>
+  </div>
         <div id="social">
 	        <a href="https://www.instagram.com/"><img src="social_images/instagram_icon.svg" alt="instagram icon"></a>
+	        <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="facebook icon"></a>
+	        <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="x icon"></a>
 	        <a href="https://www.youtube.com/"><img src="social_images/youtube_icon.svg" alt="youtube icon"></a>
 	        <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="pinterest icon"></a>
     </div>
