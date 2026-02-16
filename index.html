@@ -8,18 +8,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
-    <!-- npx http-server -p 8000 -->
-    <!-- http://localhost:8000/ -->
   </head>
+  <!-- npx http-server -p 8000 -->
+  <!-- http://localhost:8000 -->
   <body>
 <header>
-    <div class="Main_title">
-        <img src="Rocky Mountain Air.png" alt="Area Book Logo"/>
-        <h1>AREA BOOK CALENDAR</h1>
-    </div>
-    <div class = "darkModeButton">
+  <div class = logo>
+    <img src="area-book-logo.png" alt="Area Book Logo"/>
+  </div>
+  <div class = "darkModeButton">
       <button id="darkModeToggle">Dark Mode</button>
     </div>
+  <div class="Main_title">
+    <h1>AREA BOOK CALENDAR</h1>
+  </div>
     <div class="navigation">
             <nav>
                 <ul class="main_nav">
@@ -38,7 +40,15 @@
     <button id="authorize_button" onclick="handleAuthClick()">Sign In</button>
     <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
     
-    <pre id="content" style="white-space: pre-wrap;"></pre>
+    <!-- ADD WEEK NAVIGATION BUTTONS -->
+    <div class="week-navigation" style="display: none;" id="weekNav">
+    <button id="prevWeek">← Previous Week</button>
+    <button id="todayButton">Today</button>
+    <span id="weekDisplay"></span>
+    <button id="nextWeek">Next Week →</button>
+</div>
+    
+    <div id="content"></div>
     
     <script type="text/javascript">
       /* exported gapiLoaded */
@@ -60,6 +70,7 @@
       let tokenClient;
       let gapiInited = false;
       let gisInited = false;
+      let currentWeekOffset = 0; // ADD THIS LINE
 
       document.getElementById('authorize_button').style.visibility = 'hidden';
       document.getElementById('signout_button').style.visibility = 'hidden';
@@ -120,11 +131,8 @@
         };
 
         if (gapi.client.getToken() === null) {
-          // Prompt the user to select a Google Account and ask for consent to share their data
-          // when establishing a new session.
           tokenClient.requestAccessToken({prompt: 'consent'});
         } else {
-          // Skip display of account chooser and consent dialog for an existing session.
           tokenClient.requestAccessToken({prompt: ''});
         }
       }
@@ -144,19 +152,26 @@
       }
 
       /**
-       * Print the summary and start datetime/date of the next ten events in
-       * the authorized user's calendar. If no events are found an
-       * appropriate message is printed.
+       * Fetch calendar events for the week
        */
       async function listUpcomingEvents() {
         let response;
         try {
+          // Get events for the current week
+          const now = new Date();
+          const startOfWeek = new Date(now);
+          startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7)); // UPDATED
+          startOfWeek.setHours(0, 0, 0, 0);
+          
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 7);
+          
           const request = {
             'calendarId': 'primary',
-            'timeMin': (new Date()).toISOString(),
+            'timeMin': startOfWeek.toISOString(),
+            'timeMax': endOfWeek.toISOString(),
             'showDeleted': false,
             'singleEvents': true,
-            'maxResults': 10,
             'orderBy': 'startTime',
           };
           response = await gapi.client.calendar.events.list(request);
@@ -166,34 +181,130 @@
         }
 
         const events = response.result.items;
-        if (!events || events.length == 0) {
-          document.getElementById('content').innerText = 'No events found.';
-          return;
-        }
-        // Flatten to string to display
-        const output = events.reduce(
-            (str, event) => `${str}${event.summary} (${event.start.dateTime || event.start.date})\n`,
-            'Events:\n');
-        document.getElementById('content').innerText = output;
+        renderWeekView(events);
       }
+
+      function renderWeekView(events) {
+        const contentDiv = document.getElementById('content');
+        const now = new Date(); // FIXED: Moved before usage
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7)); // UPDATED
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        showWeekNavigation();
+        updateWeekDisplay();
+        
+        // Build week view HTML
+        let html = '<div class="calendar-week-container">';
+        
+        // Header with days
+        html += '<div class="week-header">';
+        html += '<div class="time-column-header"></div>';
+        
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        for (let i = 0; i < 7; i++) {
+          const day = new Date(startOfWeek);
+          day.setDate(startOfWeek.getDate() + i);
+          const isToday = day.toDateString() === now.toDateString();
+          html += `<div class="day-header ${isToday ? 'today' : ''}">
+                    <div class="day-name">${days[i].substring(0, 3)}</div>
+                    <div class="day-number">${day.getDate()}</div>
+                  </div>`;
+        }
+        html += '</div>';
+        
+        // Time slots (6 AM to 10 PM)
+        html += '<div class="week-grid">';
+        for (let hour = 6; hour <= 22; hour++) {
+          html += '<div class="time-row">';
+          html += `<div class="time-label">${hour % 12 || 12}:00 ${hour < 12 ? 'AM' : 'PM'}</div>`;
+          
+          // Day columns
+          for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+            const currentDay = new Date(startOfWeek);
+            currentDay.setDate(startOfWeek.getDate() + dayIndex);
+            currentDay.setHours(hour, 0, 0, 0);
+            
+            html += `<div class="day-cell" data-day="${dayIndex}" data-hour="${hour}">`;
+            
+            // Add events that fall in this time slot
+            events.forEach(event => {
+              const eventStart = new Date(event.start.dateTime || event.start.date);
+              const eventEnd = new Date(event.end.dateTime || event.end.date);
+              
+              if (eventStart.getDate() === currentDay.getDate() &&
+                  eventStart.getMonth() === currentDay.getMonth() &&
+                  eventStart.getHours() === hour) {
+                
+                const duration = (eventEnd - eventStart) / (1000 * 60); // minutes
+                const heightPercent = (duration / 60) * 100; // percent of hour
+                
+                html += `<div class="event" style="height: ${heightPercent}%">
+                          <div class="event-title">${event.summary}</div>
+                          <div class="event-time">${eventStart.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'})}</div>
+                        </div>`;
+              }
+            });
+            
+            html += '</div>';
+          }
+          html += '</div>';
+        }
+        html += '</div></div>';
+        
+        contentDiv.innerHTML = html;
+      }
+
+      // ADD THESE FUNCTIONS
+      function showWeekNavigation() {
+        document.getElementById('weekNav').style.display = 'block';
+      }
+
+      function updateWeekDisplay() {
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        
+        const options = { month: 'short', day: 'numeric' };
+        document.getElementById('weekDisplay').innerText = 
+            `${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)}`;
+      }
+
+      // ADD EVENT LISTENERS
+      document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('prevWeek')?.addEventListener('click', () => {
+    currentWeekOffset--;
+    listUpcomingEvents();
+  });
+
+  document.getElementById('nextWeek')?.addEventListener('click', () => {
+    currentWeekOffset++;
+    listUpcomingEvents();
+  });
+
+  // ADD THIS NEW EVENT LISTENER
+  document.getElementById('todayButton')?.addEventListener('click', () => {
+    currentWeekOffset = 0;
+    listUpcomingEvents();
+  });
+});
     </script>
 </div>
+
 <footer>
   <div class="location_text">
-    <h3>
-      Address:
-    </h3>
-    <p>
-      12345 Valley Height, Billings, Montana, 59105
-   </p>
+    <h3>Address:</h3>
+    <p>12345 Valley Height, Billings, Montana, 59105</p>
   </div>
-        <div id="social">
-	        <a href="https://www.instagram.com/"><img src="social_images/instagram_icon.svg" alt="instagram icon"></a>
-	        <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="facebook icon"></a>
-	        <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="x icon"></a>
-	        <a href="https://www.youtube.com/"><img src="social_images/youtube_icon.svg" alt="youtube icon"></a>
-	        <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="pinterest icon"></a>
-    </div>
+  <div id="social">
+    <a href="https://www.instagram.com/"><img src="social_images/instagram_icon.svg" alt="instagram icon"></a>
+    <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="facebook icon"></a>
+    <a href="https://www.x.com/"><img src="social_images/pinterest_icon.svg" alt="x icon"></a>
+    <a href="https://www.youtube.com/"><img src="social_images/youtube_icon.svg" alt="youtube icon"></a>
+    <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="pinterest icon"></a>
+  </div>
 </footer>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>

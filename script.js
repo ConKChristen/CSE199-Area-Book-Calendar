@@ -1,23 +1,29 @@
-//     // Dark mode toggle logic
-//     if (localStorage.getItem("theme") === "dark") {
-//     document.body.classList.add("dark");
-// }
-//     const toggle = document.getElementById('darkModeToggle');
-//     toggle.addEventListener('click', () => {
-//       document.body.classList.toggle('dark-mode');
-//     });
+document.addEventListener('DOMContentLoaded', () => {
+    const darkModeToggle = document.getElementById('darkModeToggle');
 
-// Restore theme on page load
-const savedTheme = localStorage.getItem("theme");
-if (savedTheme === "dark") {
-  document.body.classList.add("dark-mode");
-}
+    // Check both possible keys for backwards compatibility
+    const savedTheme = localStorage.getItem('theme') || localStorage.getItem('darkMode');
 
-// Toggle button
-document.getElementById("darkModeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
+    if (savedTheme === 'dark' || savedTheme === 'enabled') {
+        document.body.classList.add('dark-mode');
+        if (darkModeToggle) {
+            darkModeToggle.textContent = 'Light Mode';
+        }
+    }
 
-  // Save the new state
-  const isDark = document.body.classList.contains("dark-mode");
-  localStorage.setItem("theme", isDark ? "dark" : "light");
+    // Toggle button
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+
+            const isDark = document.body.classList.contains('dark-mode');
+
+            // Save new theme (use 'theme' going forward)
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            localStorage.removeItem('darkMode'); // Clean up old key
+
+            // Update button text
+            darkModeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        });
+    }
 });

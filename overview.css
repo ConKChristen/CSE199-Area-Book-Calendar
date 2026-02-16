@@ -4,9 +4,8 @@ h1{
 }
 
 .Main_title {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    align-items: center;
+    display: flex;
+    text-align: center;
 }
 
 .main_nav{
