@@ -1,91 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title>Area Book Calendar</title>
     <meta charset="utf-8" />
     <meta name="description" content="Area Book Freshman Project">
     <meta name="author" content="Connor Christensen">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
+    <!-- npx http-server -p 8000 -->
+    <!-- http://localhost:8000 -->
   </head>
-  <!-- npx http-server -p 8000 -->
-  <!-- http://localhost:8000 -->
   <body>
-<header>
-  <div class = logo>
-    <img src="area-book-logo.png" alt="Area Book Logo"/>
-  </div>
-  <div class = "darkModeButton">
-      <button id="darkModeToggle">Dark Mode</button>
-    </div>
-  <div class="Main_title">
-    <h1>AREA BOOK CALENDAR</h1>
-  </div>
-    <div class="navigation">
-            <nav>
-                <ul class="main_nav">
-                    <li><a href="index.html">CALENDAR</a></li>
-                    <li><a href="goals.html">GOALS</a></li>
-                    <li><a href="overview.html">OVERVIEW</a></li>
-                    <li><a href="#social">SOCIAL LINKS</a></li>
-                </ul>
-            </nav>
+
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <header>
+      <div class="header-inner">
+        <div class="logo-mark">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
+            <rect x="9" y="9" width="8" height="8" rx="2" fill="white" opacity="0.9"/>
+            <rect x="19" y="9" width="8" height="8" rx="2" fill="white" opacity="0.6"/>
+            <rect x="9" y="19" width="8" height="8" rx="2" fill="white" opacity="0.6"/>
+            <rect x="19" y="19" width="8" height="8" rx="2" fill="white" opacity="0.9"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36">
+                <stop offset="0%" stop-color="#1a56db"/>
+                <stop offset="100%" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="logo-text">AreaBook</span>
         </div>
-  </header>
-  <div class = 'calendarjs'>
 
-    <p>Log In for Calendar</p>
-    <!--Add buttons to initiate auth sequence and sign out-->
-    <button id="authorize_button" onclick="handleAuthClick()">Sign In</button>
-    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
-    
-    <!-- ADD WEEK NAVIGATION BUTTONS -->
-    <div class="week-navigation" style="display: none;" id="weekNav">
-    <button id="prevWeek">← Previous Week</button>
-    <button id="todayButton">Today</button>
-    <span id="weekDisplay"></span>
-    <button id="nextWeek">Next Week →</button>
-</div>
-    
-    <div id="content"></div>
-    
+        <nav>
+          <ul class="main_nav">
+            <li><a href="index.html" class="active">Calendar</a></li>
+            <li><a href="goals.html">Goals</a></li>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="#social">Social</a></li>
+          </ul>
+        </nav>
+
+        <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+          <span class="toggle-icon sun">☀</span>
+          <span class="toggle-icon moon">☾</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div class="hero-section">
+        <!-- <h1 class="hero-title">Your Week,<br><em>Visualized.</em></h1> -->
+        <p class="hero-subtitle">Connect your Google Calendar and see your schedule in weekly view.</p>
+      </div>
+
+      <div class="calendar-wrapper">
+        <div class="auth-panel" id="authPanel">
+          <div class="auth-content">
+            <div class="auth-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="24" fill="url(#authGrad)" opacity="0.15"/>
+                <path d="M24 12C17.373 12 12 17.373 12 24s5.373 12 12 12 12-5.373 12-12S30.627 12 24 12zm0 4a4 4 0 110 8 4 4 0 010-8zm0 17.2a8.8 8.8 0 01-7.334-3.937C16.832 27.408 20.324 26 24 26s7.168 1.408 7.334 3.263A8.8 8.8 0 0124 33.2z" fill="#1a56db"/>
+                <defs>
+                  <linearGradient id="authGrad" x1="0" y1="0" x2="48" y2="48">
+                    <stop offset="0%" stop-color="#1a56db"/>
+                    <stop offset="100%" stop-color="#7c3aed"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h2>Sign in to view your calendar</h2>
+            <p>We use Google OAuth to securely access your calendar events. No data is stored.</p>
+            <div class="auth-buttons">
+              <button id="authorize_button" onclick="handleAuthClick()" class="btn-primary">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="margin-right:8px">
+                  <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+                  <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+                  <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                  <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+                </svg>
+                Sign in with Google
+              </button>
+              <button id="signout_button" onclick="handleSignoutClick()" class="btn-ghost">Sign Out</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-navigation" style="display: none;" id="weekNav">
+          <button id="prevWeek" class="nav-arrow">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Prev
+          </button>
+          <button id="todayButton" class="btn-today">Today</button>
+          <span id="weekDisplay"></span>
+          <button id="nextWeek" class="nav-arrow">
+            Next
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div id="content"></div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="logo-mark small">
+            <svg width="24" height="24" viewBox="0 0 36 36" fill="none">
+              <rect width="36" height="36" rx="10" fill="url(#logoGrad2)"/>
+              <rect x="9" y="9" width="8" height="8" rx="2" fill="white" opacity="0.9"/>
+              <rect x="19" y="9" width="8" height="8" rx="2" fill="white" opacity="0.6"/>
+              <rect x="9" y="19" width="8" height="8" rx="2" fill="white" opacity="0.6"/>
+              <rect x="19" y="19" width="8" height="8" rx="2" fill="white" opacity="0.9"/>
+              <defs>
+                <linearGradient id="logoGrad2" x1="0" y1="0" x2="36" y2="36">
+                  <stop offset="0%" stop-color="#1a56db"/>
+                  <stop offset="100%" stop-color="#7c3aed"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="logo-text">AreaBook</span>
+          </div>
+          <p class="footer-address">12345 Valley Height, Billings, MT 59105</p>
+        </div>
+        <div id="social" class="social-links">
+          <a href="https://www.instagram.com/" aria-label="Instagram" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="https://www.pinterest.com/" aria-label="Pinterest" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.22-5.14 1.22-5.14s-.31-.62-.31-1.54c0-1.45.84-2.53 1.88-2.53.89 0 1.32.67 1.32 1.47 0 .89-.57 2.23-.87 3.47-.24 1.04.51 1.88 1.53 1.88 1.84 0 3.08-2.37 3.08-5.16 0-2.13-1.43-3.62-3.48-3.62-2.37 0-3.76 1.78-3.76 3.62 0 .72.28 1.49.62 1.91a.25.25 0 01.06.24l-.23.93c-.04.15-.13.18-.29.11-1.09-.5-1.77-2.1-1.77-3.38 0-2.75 1.99-5.27 5.75-5.27 3.01 0 5.35 2.15 5.35 5.02 0 2.99-1.88 5.4-4.49 5.4-.88 0-1.7-.46-1.98-1l-.54 2.01c-.2.74-.72 1.67-1.07 2.23.81.25 1.66.39 2.55.39 5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+          </a>
+          <a href="https://www.x.com/" aria-label="X" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L2.25 2.25H8.08l4.261 5.636L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+          </a>
+          <a href="https://www.youtube.com/" aria-label="YouTube" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+
     <script type="text/javascript">
-      /* exported gapiLoaded */
-      /* exported gisLoaded */
-      /* exported handleAuthClick */
-      /* exported handleSignoutClick */
-
-      // TODO(developer): Set to client ID and API key from the Developer Console
       const CLIENT_ID = '882122220134-4udf0avmnrrm0m313i6on3njenq9387j.apps.googleusercontent.com';
       const API_KEY = 'AIzaSyBC7DukCpSrOjrguRrca3Opvc7MTKCP-lc';
-
-      // Discovery doc URL for APIs used by the quickstart
       const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
-
-      // Authorization scopes required by the API; multiple scopes can be
-      // included, separated by spaces.
       const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
 
       let tokenClient;
       let gapiInited = false;
       let gisInited = false;
-      let currentWeekOffset = 0; // ADD THIS LINE
+      let currentWeekOffset = 0;
 
       document.getElementById('authorize_button').style.visibility = 'hidden';
       document.getElementById('signout_button').style.visibility = 'hidden';
 
-      /**
-       * Callback after api.js is loaded.
-       */
       function gapiLoaded() {
         gapi.load('client', initializeGapiClient);
       }
 
-      /**
-       * Callback after the API client is loaded. Loads the
-       * discovery doc to initialize the API.
-       */
       async function initializeGapiClient() {
         await gapi.client.init({
           apiKey: API_KEY,
@@ -95,41 +175,30 @@
         maybeEnableButtons();
       }
 
-      /**
-       * Callback after Google Identity Services are loaded.
-       */
       function gisLoaded() {
         tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
           scope: SCOPES,
-          callback: '', // defined later
+          callback: '',
         });
         gisInited = true;
         maybeEnableButtons();
       }
 
-      /**
-       * Enables user interaction after all libraries are loaded.
-       */
       function maybeEnableButtons() {
         if (gapiInited && gisInited) {
           document.getElementById('authorize_button').style.visibility = 'visible';
         }
       }
 
-      /**
-       *  Sign in the user upon button click.
-       */
       function handleAuthClick() {
         tokenClient.callback = async (resp) => {
-          if (resp.error !== undefined) {
-            throw (resp);
-          }
+          if (resp.error !== undefined) throw (resp);
           document.getElementById('signout_button').style.visibility = 'visible';
           document.getElementById('authorize_button').innerText = 'Refresh';
+          document.getElementById('authPanel').style.display = 'none';
           await listUpcomingEvents();
         };
-
         if (gapi.client.getToken() === null) {
           tokenClient.requestAccessToken({prompt: 'consent'});
         } else {
@@ -137,127 +206,97 @@
         }
       }
 
-      /**
-       *  Sign out the user upon button click.
-       */
       function handleSignoutClick() {
         const token = gapi.client.getToken();
         if (token !== null) {
           google.accounts.oauth2.revoke(token.access_token);
           gapi.client.setToken('');
           document.getElementById('content').innerText = '';
-          document.getElementById('authorize_button').innerText = 'Authorize';
+          document.getElementById('authorize_button').innerText = 'Sign in with Google';
           document.getElementById('signout_button').style.visibility = 'hidden';
+          document.getElementById('authPanel').style.display = 'flex';
+          document.getElementById('weekNav').style.display = 'none';
         }
       }
 
-      /**
-       * Fetch calendar events for the week
-       */
       async function listUpcomingEvents() {
         let response;
         try {
-          // Get events for the current week
           const now = new Date();
           const startOfWeek = new Date(now);
-          startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7)); // UPDATED
+          startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
           startOfWeek.setHours(0, 0, 0, 0);
-          
           const endOfWeek = new Date(startOfWeek);
           endOfWeek.setDate(startOfWeek.getDate() + 7);
-          
-          const request = {
+
+          response = await gapi.client.calendar.events.list({
             'calendarId': 'primary',
             'timeMin': startOfWeek.toISOString(),
             'timeMax': endOfWeek.toISOString(),
             'showDeleted': false,
             'singleEvents': true,
             'orderBy': 'startTime',
-          };
-          response = await gapi.client.calendar.events.list(request);
+          });
         } catch (err) {
           document.getElementById('content').innerText = err.message;
           return;
         }
-
-        const events = response.result.items;
-        renderWeekView(events);
+        renderWeekView(response.result.items);
       }
 
       function renderWeekView(events) {
         const contentDiv = document.getElementById('content');
-        const now = new Date(); // FIXED: Moved before usage
+        const now = new Date();
         const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7)); // UPDATED
+        startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
         startOfWeek.setHours(0, 0, 0, 0);
-        
-        showWeekNavigation();
+
+        document.getElementById('weekNav').style.display = 'flex';
         updateWeekDisplay();
-        
-        // Build week view HTML
+
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
         let html = '<div class="calendar-week-container">';
-        
-        // Header with days
-        html += '<div class="week-header">';
-        html += '<div class="time-column-header"></div>';
-        
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        html += '<div class="week-header"><div class="time-column-header"></div>';
         for (let i = 0; i < 7; i++) {
           const day = new Date(startOfWeek);
           day.setDate(startOfWeek.getDate() + i);
           const isToday = day.toDateString() === now.toDateString();
           html += `<div class="day-header ${isToday ? 'today' : ''}">
-                    <div class="day-name">${days[i].substring(0, 3)}</div>
-                    <div class="day-number">${day.getDate()}</div>
-                  </div>`;
+            <div class="day-name">${days[i]}</div>
+            <div class="day-number">${day.getDate()}</div>
+          </div>`;
         }
-        html += '</div>';
-        
-        // Time slots (6 AM to 10 PM)
-        html += '<div class="week-grid">';
+        html += '</div><div class="week-grid">';
+
         for (let hour = 6; hour <= 22; hour++) {
           html += '<div class="time-row">';
-          html += `<div class="time-label">${hour % 12 || 12}:00 ${hour < 12 ? 'AM' : 'PM'}</div>`;
-          
-          // Day columns
-          for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+          html += `<div class="time-label">${hour % 12 || 12}<span class="ampm">${hour < 12 ? 'AM' : 'PM'}</span></div>`;
+          for (let d = 0; d < 7; d++) {
             const currentDay = new Date(startOfWeek);
-            currentDay.setDate(startOfWeek.getDate() + dayIndex);
+            currentDay.setDate(startOfWeek.getDate() + d);
             currentDay.setHours(hour, 0, 0, 0);
-            
-            html += `<div class="day-cell" data-day="${dayIndex}" data-hour="${hour}">`;
-            
-            // Add events that fall in this time slot
+            html += `<div class="day-cell" data-day="${d}" data-hour="${hour}">`;
             events.forEach(event => {
               const eventStart = new Date(event.start.dateTime || event.start.date);
               const eventEnd = new Date(event.end.dateTime || event.end.date);
-              
               if (eventStart.getDate() === currentDay.getDate() &&
                   eventStart.getMonth() === currentDay.getMonth() &&
                   eventStart.getHours() === hour) {
-                
-                const duration = (eventEnd - eventStart) / (1000 * 60); // minutes
-                const heightPercent = (duration / 60) * 100; // percent of hour
-                
-                html += `<div class="event" style="height: ${heightPercent}%">
-                          <div class="event-title">${event.summary}</div>
-                          <div class="event-time">${eventStart.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'})}</div>
-                        </div>`;
+                const duration = (eventEnd - eventStart) / (1000 * 60);
+                const heightPercent = Math.max((duration / 60) * 100, 30);
+                html += `<div class="event" style="height:${heightPercent}%">
+                  <div class="event-title">${event.summary || 'Untitled'}</div>
+                  <div class="event-time">${eventStart.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'})}</div>
+                </div>`;
               }
             });
-            
             html += '</div>';
           }
           html += '</div>';
         }
         html += '</div></div>';
-        
         contentDiv.innerHTML = html;
-      }
-
-      // ADD THESE FUNCTIONS
-      function showWeekNavigation() {
-        document.getElementById('weekNav').style.display = 'block';
       }
 
       function updateWeekDisplay() {
@@ -266,46 +305,18 @@
         startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6);
-        
-        const options = { month: 'short', day: 'numeric' };
-        document.getElementById('weekDisplay').innerText = 
-            `${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)}`;
+        const opts = { month: 'short', day: 'numeric' };
+        document.getElementById('weekDisplay').innerText =
+          `${startOfWeek.toLocaleDateString('en-US', opts)} – ${endOfWeek.toLocaleDateString('en-US', opts)}`;
       }
 
-      // ADD EVENT LISTENERS
       document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('prevWeek')?.addEventListener('click', () => {
-    currentWeekOffset--;
-    listUpcomingEvents();
-  });
-
-  document.getElementById('nextWeek')?.addEventListener('click', () => {
-    currentWeekOffset++;
-    listUpcomingEvents();
-  });
-
-  // ADD THIS NEW EVENT LISTENER
-  document.getElementById('todayButton')?.addEventListener('click', () => {
-    currentWeekOffset = 0;
-    listUpcomingEvents();
-  });
-});
+        document.getElementById('prevWeek')?.addEventListener('click', () => { currentWeekOffset--; listUpcomingEvents(); });
+        document.getElementById('nextWeek')?.addEventListener('click', () => { currentWeekOffset++; listUpcomingEvents(); });
+        document.getElementById('todayButton')?.addEventListener('click', () => { currentWeekOffset = 0; listUpcomingEvents(); });
+      });
     </script>
-</div>
 
-<footer>
-  <div class="location_text">
-    <h3>Address:</h3>
-    <p>12345 Valley Height, Billings, Montana, 59105</p>
-  </div>
-  <div id="social">
-    <a href="https://www.instagram.com/"><img src="social_images/instagram_icon.svg" alt="instagram icon"></a>
-    <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="facebook icon"></a>
-    <a href="https://www.x.com/"><img src="social_images/pinterest_icon.svg" alt="x icon"></a>
-    <a href="https://www.youtube.com/"><img src="social_images/youtube_icon.svg" alt="youtube icon"></a>
-    <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="pinterest icon"></a>
-  </div>
-</footer>
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
     <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
   </body>

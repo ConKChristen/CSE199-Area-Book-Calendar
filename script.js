@@ -6,24 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (savedTheme === 'dark' || savedTheme === 'enabled') {
         document.body.classList.add('dark-mode');
-        if (darkModeToggle) {
-            darkModeToggle.textContent = 'Light Mode';
-        }
     }
 
-    // Toggle button
     if (darkModeToggle) {
         darkModeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-
             const isDark = document.body.classList.contains('dark-mode');
-
-            // Save new theme (use 'theme' going forward)
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             localStorage.removeItem('darkMode'); // Clean up old key
-
-            // Update button text
-            darkModeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
         });
     }
 });
