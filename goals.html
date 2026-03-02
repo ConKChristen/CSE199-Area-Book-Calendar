@@ -12,39 +12,103 @@
 <!-- npx http-server -p 8000 -->
   <!-- http://localhost:8000 -->
 <body>
+    <!-- Add this RIGHT AFTER your opening <body> tag -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-text">AreaBook</span>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">✕</button>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="index.html" class="active">📅 Calendar</a></li>
+          <li><a href="goals.html">🎯 Goals</a></li>
+          <li><a href="overview.html">📊 Overview</a></li>
+          <li><a href="#social">🔗 Social</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
     <header>
-    <div class="Main_title">
-        <img src="Rocky Mountain Air.png" alt="Area Book Logo"/>
-        <h1>AREA BOOK CALENDAR</h1>
-    </div>
-    <div class = "darkModeButton">
-      <button id="darkModeToggle">Dark Mode</button>
-    </div>
-    <div class="navigation">
-            <nav>
-                <ul class="main_nav">
-                    <li><a href="index.html">CALENDAR</a></li>
-                    <li><a href="goals.html">GOALS</a></li>
-                    <li><a href="overview.html">OVERVIEW</a></li>
-                </ul>
-            </nav>
+      <div class="header-inner">
+        <!-- Add this INSIDE .header-inner, before the <nav> -->
+        <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="logo-mark">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
+            <rect x="9" y="9" width="8" height="8" rx="2" fill="white" opacity="0.9"/>
+            <rect x="19" y="9" width="8" height="8" rx="2" fill="white" opacity="0.6"/>
+            <rect x="9" y="19" width="8" height="8" rx="2" fill="white" opacity="0.6"/>
+            <rect x="19" y="19" width="8" height="8" rx="2" fill="white" opacity="0.9"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36">
+                <stop offset="0%" stop-color="#1a56db"/>
+                <stop offset="100%" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="logo-text">AreaBook</span>
         </div>
-  </header>
+
+        <nav>
+          <ul class="main_nav">
+            <li><a href="index.html" class="active">Calendar</a></li>
+            <li><a href="goals.html">Goals</a></li>
+            <li><a href="overview.html">Overview</a></li>
+            <li><a href="#social">Social</a></li>
+          </ul>
+        </nav>
+
+        <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+          <span class="toggle-icon sun">Dark Mode</span>
+          <span class="toggle-icon moon">Light Mode</span>
+        </button>
+      </div>
+    </header>
   <p> Hello, welcome to the Goals page!</p>
   <footer>
-    <div class="location_text">
-            <h3>
-                Address:
-            </h3>
-            <p>
-                12345 Valley Heights, Billings, Montana, 59105
-            </p>
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="logo-mark small">
+            <svg width="24" height="24" viewBox="0 0 36 36" fill="none">
+              <rect width="36" height="36" rx="10" fill="url(#logoGrad2)"/>
+              <rect x="9" y="9" width="8" height="8" rx="2" fill="white" opacity="0.9"/>
+              <rect x="19" y="9" width="8" height="8" rx="2" fill="white" opacity="0.6"/>
+              <rect x="9" y="19" width="8" height="8" rx="2" fill="white" opacity="0.6"/>
+              <rect x="19" y="19" width="8" height="8" rx="2" fill="white" opacity="0.9"/>
+              <defs>
+                <linearGradient id="logoGrad2" x1="0" y1="0" x2="36" y2="36">
+                  <stop offset="0%" stop-color="#1a56db"/>
+                  <stop offset="100%" stop-color="#7c3aed"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="logo-text">AreaBook</span>
+          </div>
+          <p class="footer-address">12345 Valley Height, Billings, MT 59105</p>
         </div>
-        <div id="social">
-	        <a href="https://www.instagram.com/"><img src="social_images/instagram_icon.svg" alt="instagram icon"></a>
-	        <a href="https://www.youtube.com/"><img src="social_images/youtube_icon.svg" alt="youtube icon"></a>
-	        <a href="https://www.pinterest.com/"><img src="social_images/pinterest_icon.svg" alt="pinterest icon"></a>
-    </div>
-</footer>
+        <div id="social" class="social-links">
+          <a href="https://www.instagram.com/" aria-label="Instagram" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="https://www.pinterest.com/" aria-label="Pinterest" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.22-5.14 1.22-5.14s-.31-.62-.31-1.54c0-1.45.84-2.53 1.88-2.53.89 0 1.32.67 1.32 1.47 0 .89-.57 2.23-.87 3.47-.24 1.04.51 1.88 1.53 1.88 1.84 0 3.08-2.37 3.08-5.16 0-2.13-1.43-3.62-3.48-3.62-2.37 0-3.76 1.78-3.76 3.62 0 .72.28 1.49.62 1.91a.25.25 0 01.06.24l-.23.93c-.04.15-.13.18-.29.11-1.09-.5-1.77-2.1-1.77-3.38 0-2.75 1.99-5.27 5.75-5.27 3.01 0 5.35 2.15 5.35 5.02 0 2.99-1.88 5.4-4.49 5.4-.88 0-1.7-.46-1.98-1l-.54 2.01c-.2.74-.72 1.67-1.07 2.23.81.25 1.66.39 2.55.39 5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+          </a>
+          <a href="https://www.x.com/" aria-label="X" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L2.25 2.25H8.08l4.261 5.636L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+          </a>
+          <a href="https://www.youtube.com/" aria-label="YouTube" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </div>
+      </div>
+    </footer>
 </body>
 </html>

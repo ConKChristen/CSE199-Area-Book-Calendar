@@ -14,14 +14,94 @@
     <!-- npx http-server -p 8000 -->
     <!-- http://localhost:8000 -->
   </head>
-  <body>
+  <!-- Event Creation Modal -->
+<div class="modal-overlay" id="modalOverlay"></div>
+<div class="modal" id="eventModal">
+  <div class="modal-header">
+    <h3>New Event</h3>
+    <button class="modal-close" id="modalClose">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="eventTitle">Title</label>
+      <input type="text" id="eventTitle" placeholder="Add title" />
+    </div>
+    <div class="form-row">
+      <div class="form-row">
+  <div class="form-group">
+    <label for="eventDate">Date</label>
+    <input type="date" id="eventDate" />
+  </div>
+</div>
 
+<!-- Clock Picker -->
+<div class="form-group">
+  <label>Time</label>
+  <div class="time-display-row">
+    <button class="time-segment active" id="startHourBtn">09</button>
+    <span class="time-colon">:</span>
+    <button class="time-segment" id="startMinBtn">00</button>
+    <div class="ampm-toggle">
+      <button class="ampm-btn active" id="startAmBtn">AM</button>
+      <button class="ampm-btn" id="startPmBtn">PM</button>
+    </div>
+    <span class="time-range-label">to</span>
+    <button class="time-segment" id="endHourBtn">10</button>
+    <span class="time-colon">:</span>
+    <button class="time-segment" id="endMinBtn">00</button>
+    <div class="ampm-toggle">
+      <button class="ampm-btn active" id="endAmBtn">AM</button>
+      <button class="ampm-btn" id="endPmBtn">PM</button>
+    </div>
+  </div>
+</div>
+
+<!-- Clock Face -->
+<div class="clock-picker" id="clockPicker">
+  <div class="clock-face" id="clockFace">
+    <div class="clock-hand" id="clockHand"></div>
+    <div class="clock-center"></div>
+    <div class="clock-numbers" id="clockNumbers"></div>
+  </div>
+</div>
+    </div>
+    <div class="form-group">
+      <label for="eventDescription">Description</label>
+      <textarea id="eventDescription" placeholder="Add description (optional)" rows="3"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost modal-cancel" id="modalCancel">Cancel</button>
+      <button class="btn-primary" id="saveEvent">Save Event</button>
+    </div>
+    <p class="modal-error" id="modalError"></p>
+  </div>
+</div>
+  <body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-text">AreaBook</span>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">✕</button>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="index.html" class="active">📅 Calendar</a></li>
+          <li><a href="goals.html">🎯 Goals</a></li>
+          <li><a href="overview.html">📊 Overview</a></li>
+        </ul>
+      </nav>
+    </aside>
     <div class="bg-grid"></div>
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
 
     <header>
       <div class="header-inner">
+        <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <div class="logo-mark">
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
             <rect width="36" height="36" rx="10" fill="url(#logoGrad)"/>
@@ -44,20 +124,18 @@
             <li><a href="index.html" class="active">Calendar</a></li>
             <li><a href="goals.html">Goals</a></li>
             <li><a href="overview.html">Overview</a></li>
-            <li><a href="#social">Social</a></li>
           </ul>
         </nav>
 
-        <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-          <span class="toggle-icon sun">☀</span>
-          <span class="toggle-icon moon">☾</span>
+        <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode" style="margin-left: auto;">
+          <span class="toggle-icon sun">Dark Mode</span>
+          <span class="toggle-icon moon">Light Mode</span>
         </button>
       </div>
     </header>
 
     <main>
-      <div class="hero-section">
-        <!-- <h1 class="hero-title">Your Week,<br><em>Visualized.</em></h1> -->
+      <div class="hero-section" id="heroSection">
         <p class="hero-subtitle">Connect your Google Calendar and see your schedule in weekly view.</p>
       </div>
 
@@ -103,6 +181,12 @@
           <button id="nextWeek" class="nav-arrow">
             Next
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button id="newEventBtn" class="btn-new-event">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:6px">
+              <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            New Event
           </button>
         </div>
 
@@ -152,7 +236,7 @@
       const CLIENT_ID = '882122220134-4udf0avmnrrm0m313i6on3njenq9387j.apps.googleusercontent.com';
       const API_KEY = 'AIzaSyBC7DukCpSrOjrguRrca3Opvc7MTKCP-lc';
       const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
-      const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+      const SCOPES = 'https://www.googleapis.com/auth/calendar';
 
       let tokenClient;
       let gapiInited = false;
@@ -197,6 +281,7 @@
           document.getElementById('signout_button').style.visibility = 'visible';
           document.getElementById('authorize_button').innerText = 'Refresh';
           document.getElementById('authPanel').style.display = 'none';
+          document.getElementById('heroSection').style.display = 'none';
           await listUpcomingEvents();
         };
         if (gapi.client.getToken() === null) {
@@ -215,6 +300,7 @@
           document.getElementById('authorize_button').innerText = 'Sign in with Google';
           document.getElementById('signout_button').style.visibility = 'hidden';
           document.getElementById('authPanel').style.display = 'flex';
+          document.getElementById('heroSection').style.display = 'block';
           document.getElementById('weekNav').style.display = 'none';
         }
       }
@@ -269,32 +355,53 @@
         }
         html += '</div><div class="week-grid">';
 
-        for (let hour = 6; hour <= 22; hour++) {
+        // Start at 6:30 AM (slot 13) and go to 10:30 PM (slot 45)
+        // Each slot = 30 minutes: slot number = hour * 2 + (minutes === 30 ? 1 : 0)
+        for (let slot = 13; slot <= 45; slot++) {
+          const hour = Math.floor(slot / 2);
+          const minutes = (slot % 2 === 0) ? 0 : 30;
+
           html += '<div class="time-row">';
-          html += `<div class="time-label">${hour % 12 || 12}<span class="ampm">${hour < 12 ? 'AM' : 'PM'}</span></div>`;
+
+          // Show the hour label on the :00 row, a subtle dash on the :30 row
+          if (minutes === 0) {
+            html += `<div class="time-label">${hour % 12 || 12}<span class="ampm">${hour < 12 ? 'AM' : 'PM'}</span></div>`;
+          } else {
+            html += `<div class="time-label" style="font-size:9px; padding-top:6px; opacity:0.5;">&mdash;30</div>`;
+          }
+
           for (let d = 0; d < 7; d++) {
             const currentDay = new Date(startOfWeek);
             currentDay.setDate(startOfWeek.getDate() + d);
-            currentDay.setHours(hour, 0, 0, 0);
-            html += `<div class="day-cell" data-day="${d}" data-hour="${hour}">`;
+            currentDay.setHours(hour, minutes, 0, 0);
+
+            html += `<div class="day-cell" data-day="${d}" data-hour="${hour}" data-min="${minutes}">`;
+
             events.forEach(event => {
               const eventStart = new Date(event.start.dateTime || event.start.date);
               const eventEnd = new Date(event.end.dateTime || event.end.date);
-              if (eventStart.getDate() === currentDay.getDate() &&
-                  eventStart.getMonth() === currentDay.getMonth() &&
-                  eventStart.getHours() === hour) {
+
+              if (
+                eventStart.getDate() === currentDay.getDate() &&
+                eventStart.getMonth() === currentDay.getMonth() &&
+                eventStart.getHours() === hour &&
+                eventStart.getMinutes() >= minutes &&
+                eventStart.getMinutes() < minutes + 30
+              ) {
                 const duration = (eventEnd - eventStart) / (1000 * 60);
-                const heightPercent = Math.max((duration / 60) * 100, 30);
+                const heightPercent = Math.max((duration / 30) * 100, 30);
                 html += `<div class="event" style="height:${heightPercent}%">
                   <div class="event-title">${event.summary || 'Untitled'}</div>
                   <div class="event-time">${eventStart.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'})}</div>
                 </div>`;
               }
             });
+
             html += '</div>';
           }
           html += '</div>';
         }
+
         html += '</div></div>';
         contentDiv.innerHTML = html;
       }
