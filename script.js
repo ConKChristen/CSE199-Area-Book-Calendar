@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Dark Mode ──
-  const darkModeToggle = document.getElementById('darkModeToggle');
+  const darkModeToggle = document.getElementById('themeToggle');
   const savedTheme = localStorage.getItem('theme') || localStorage.getItem('darkMode');
   if (savedTheme === 'dark' || savedTheme === 'enabled') {
     document.body.classList.add('dark-mode');
@@ -55,8 +55,46 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('nextWeek')?.addEventListener('click', () => { currentWeekOffset++; listUpcomingEvents(); });
   document.getElementById('todayButton')?.addEventListener('click', () => { currentWeekOffset = 0; listUpcomingEvents(); });
 
+  // ── Event Type Config ──
+  const EVENT_TYPES = {
+    study:   { label: 'Study',   icon: '📚', color: '#2563eb' },
+    task:    { label: 'Task',    icon: '✅', color: '#d97706' },
+    meeting: { label: 'Meeting', icon: '🤝', color: '#7c3aed' },
+    travel:  { label: 'Travel',  icon: '✈️', color: '#0891b2' },
+    food:    { label: 'Food',    icon: '🍽️', color: '#dc2626' },
+    plan:    { label: 'Plan',    icon: '📋', color: '#059669' },
+    social:  { label: 'Social',  icon: '🎉', color: '#db2777' },
+    other:   { label: 'Other',   icon: '📌', color: '#6b7280' },
+  };
+
+  function encodeEventType(type, description) {
+    return `[type:${type}]${description ? '\n' + description : ''}`;
+  }
+
+  function decodeEventType(description) {
+    if (!description) return { type: 'other', description: '' };
+    const match = description.match(/^\[type:(\w+)\]/);
+    if (match) {
+      const type = match[1];
+      const desc = description.replace(/^\[type:\w+\]\n?/, '');
+      return { type: EVENT_TYPES[type] ? type : 'other', description: desc };
+    }
+    return { type: 'other', description };
+  }
+
+  // ── Event Type Button Selection ──
+  let selectedEventType = 'study';
+
+  document.querySelectorAll('.event-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.event-type-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedEventType = btn.dataset.type;
+    });
+  });
+
   // ── Clock Picker State ──
-  let clockMode = null; // 'startHour' | 'startMin' | 'endHour' | 'endMin'
+  let clockMode = null;
   let timeState = {
     startHour: 9,  startMin: 0,  startAmpm: 'AM',
     endHour:   10, endMin:   0,  endAmpm:   'AM',
@@ -78,25 +116,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('endPmBtn').classList.toggle('active',   timeState.endAmpm   === 'PM');
   }
 
- function setActiveSegment(mode) {
-  clockMode = mode;
-  ['startHourBtn', 'startMinBtn', 'endHourBtn', 'endMinBtn'].forEach(id => {
-    document.getElementById(id)?.classList.remove('active');
-  });
-  const map = {
-    startHour: 'startHourBtn',
-    startMin:  'startMinBtn',
-    endHour:   'endHourBtn',
-    endMin:    'endMinBtn',
-  };
-  document.getElementById(map[mode])?.classList.add('active');
-
-  // Show the clock whenever a segment is active
-  document.getElementById('clockPicker')?.classList.add('visible');
-
-  renderClockNumbers();
-  updateClockHand();
-}
+  function setActiveSegment(mode) {
+    clockMode = mode;
+    ['startHourBtn', 'startMinBtn', 'endHourBtn', 'endMinBtn'].forEach(id => {
+      document.getElementById(id)?.classList.remove('active');
+    });
+    const map = {
+      startHour: 'startHourBtn',
+      startMin:  'startMinBtn',
+      endHour:   'endHourBtn',
+      endMin:    'endMinBtn',
+    };
+    document.getElementById(map[mode])?.classList.add('active');
+    document.getElementById('clockPicker')?.classList.add('visible');
+    renderClockNumbers();
+    updateClockHand();
+  }
 
   function renderClockNumbers() {
     const face = document.getElementById('clockNumbers');
@@ -132,13 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         timeState[clockMode] = n;
-
-        // Auto-advance to next segment
         if      (clockMode === 'startHour') setActiveSegment('startMin');
         else if (clockMode === 'startMin')  setActiveSegment('endHour');
         else if (clockMode === 'endHour')   setActiveSegment('endMin');
-        // endMin: just stay, user is done
-
         renderClockNumbers();
         updateClockHand();
         updateTimeDisplays();
@@ -155,8 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMin = clockMode.includes('Min');
     let val = timeState[clockMode];
     const total = isMin ? 60 : 12;
-
-    // 12 o'clock = 0 degrees
     if (!isMin && val === 12) val = 0;
 
     const deg = (val / total) * 360;
@@ -195,14 +224,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('eventDescription').value = '';
     modalError.textContent = '';
 
+    // Reset event type to 'study'
+    selectedEventType = 'study';
+    document.querySelectorAll('.event-type-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.type === 'study');
+    });
+
     // Reset clock state
-    clockMode = null;  // ← add this
+    clockMode = null;
     timeState = {
       startHour: 9,  startMin: 0,  startAmpm: 'AM',
       endHour:   10, endMin:   0,  endAmpm:   'AM',
     };
     updateTimeDisplays();
-    // No setActiveSegment call — clock stays hidden
 
     modalOverlay.classList.add('active');
     requestAnimationFrame(() => eventModal.classList.add('active'));
@@ -212,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeModal() {
     eventModal?.classList.remove('active');
     modalOverlay?.classList.remove('active');
-    document.getElementById('clockPicker')?.classList.remove('visible'); // ← add this
+    document.getElementById('clockPicker')?.classList.remove('visible');
   }
 
   newEventBtn?.addEventListener('click', openModal);
@@ -242,16 +276,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return (modalError.textContent = 'End time must be after start time.');
     }
 
-    modalError.textContent    = '';
-    saveEventBtn.textContent  = 'Saving…';
-    saveEventBtn.disabled     = true;
+    modalError.textContent   = '';
+    saveEventBtn.textContent = 'Saving…';
+    saveEventBtn.disabled    = true;
+
+    // Encode event type into description
+    const encodedDescription = encodeEventType(selectedEventType, desc);
 
     try {
       await gapi.client.calendar.events.insert({
         calendarId: 'primary',
         resource: {
           summary:     title,
-          description: desc || undefined,
+          description: encodedDescription,
           start: {
             dateTime: `${date}T${startTime}:00`,
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -264,13 +301,94 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       closeModal();
-      await listUpcomingEvents(); // Refresh calendar
+      await listUpcomingEvents();
     } catch (err) {
       modalError.textContent = err.result?.error?.message || 'Failed to save. Please try again.';
     } finally {
       saveEventBtn.textContent = 'Save Event';
       saveEventBtn.disabled    = false;
     }
+  });
+
+  // ── Event Detail Modal ──
+  function openEventDetail(event) {
+    const start = new Date(event.start.dateTime || event.start.date);
+    const end   = new Date(event.end.dateTime   || event.end.date);
+
+    const timeStr = event.start.dateTime
+      ? `${start.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'})} – ${end.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'})}`
+      : 'All day';
+
+    const { type, description } = decodeEventType(event.description);
+    const typeConfig = EVENT_TYPES[type] || EVENT_TYPES.other;
+
+    const detail = document.getElementById('eventDetailModal');
+    document.getElementById('detailTitle').textContent = event.summary || 'Untitled';
+    document.getElementById('detailTime').textContent  = timeStr;
+    document.getElementById('detailDate').textContent  = start.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    document.getElementById('detailDescription').textContent = description || 'No description.';
+
+    // Show type badge with color
+    const badge = document.getElementById('detailTypeBadge');
+    badge.textContent = `${typeConfig.icon} ${typeConfig.label}`;
+    badge.style.background = typeConfig.color;
+
+    document.getElementById('modalOverlay').classList.add('active');
+    requestAnimationFrame(() => detail.classList.add('active'));
+  }
+
+  document.getElementById('detailClose')?.addEventListener('click', () => {
+    document.getElementById('eventDetailModal').classList.remove('active');
+    document.getElementById('modalOverlay').classList.remove('active');
+  });
+
+  // ── Content Click Handler ──
+  document.getElementById('content')?.addEventListener('click', (e) => {
+    // Check for event click FIRST
+    const eventEl = e.target.closest('.event');
+    if (eventEl) {
+      e.stopPropagation();
+      const event = JSON.parse(eventEl.dataset.event);
+      openEventDetail(event);
+      return;
+    }
+
+    // Click on empty cell → open modal pre-filled
+    const cell = e.target.closest('.day-cell');
+    if (!cell) return;
+
+    const dayIndex = parseInt(cell.dataset.day);
+    const hour     = parseInt(cell.dataset.hour);
+    const min      = parseInt(cell.dataset.min);
+
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
+    startOfWeek.setHours(0, 0, 0, 0);
+    const clickedDay = new Date(startOfWeek);
+    clickedDay.setDate(startOfWeek.getDate() + dayIndex);
+
+    openModal();
+
+    const yyyy = clickedDay.getFullYear();
+    const mm   = String(clickedDay.getMonth() + 1).padStart(2, '0');
+    const dd   = String(clickedDay.getDate()).padStart(2, '0');
+    document.getElementById('eventDate').value = `${yyyy}-${mm}-${dd}`;
+
+    const startAmpm   = hour < 12 ? 'AM' : 'PM';
+    const startHour12 = hour % 12 || 12;
+    timeState.startHour  = startHour12;
+    timeState.startMin   = min;
+    timeState.startAmpm  = startAmpm;
+
+    const endHour24 = (hour + 1) % 24;
+    const endAmpm   = endHour24 < 12 ? 'AM' : 'PM';
+    const endHour12 = endHour24 % 12 || 12;
+    timeState.endHour  = endHour12;
+    timeState.endMin   = min;
+    timeState.endAmpm  = endAmpm;
+
+    updateTimeDisplays();
   });
 
 });

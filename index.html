@@ -11,71 +11,128 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
-    <!-- npx http-server -p 8000 -->
-    <!-- http://localhost:8000 -->
   </head>
+
   <!-- Event Creation Modal -->
-<div class="modal-overlay" id="modalOverlay"></div>
-<div class="modal" id="eventModal">
-  <div class="modal-header">
-    <h3>New Event</h3>
-    <button class="modal-close" id="modalClose">✕</button>
-  </div>
-  <div class="modal-body">
-    <div class="form-group">
-      <label for="eventTitle">Title</label>
-      <input type="text" id="eventTitle" placeholder="Add title" />
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="modal" id="eventModal">
+    <div class="modal-header">
+      <h3>New Event</h3>
+      <button class="modal-close" id="modalClose">✕</button>
     </div>
-    <div class="form-row">
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="eventTitle">Title</label>
+        <input type="text" id="eventTitle" placeholder="Add title" />
+      </div>
+
+      <!-- Event Type Selector -->
+      <div class="form-group">
+        <label>Event Type</label>
+        <div class="event-type-grid">
+          <button class="event-type-btn selected" data-type="study">
+            <span class="event-type-icon">📚</span>Study
+          </button>
+          <button class="event-type-btn" data-type="task">
+            <span class="event-type-icon">✅</span>Task
+          </button>
+          <button class="event-type-btn" data-type="meeting">
+            <span class="event-type-icon">🤝</span>Meeting
+          </button>
+          <button class="event-type-btn" data-type="travel">
+            <span class="event-type-icon">🚶</span>Travel
+          </button>
+          <button class="event-type-btn" data-type="food">
+            <span class="event-type-icon">🍽️</span>Food
+          </button>
+          <button class="event-type-btn" data-type="plan">
+            <span class="event-type-icon">📋</span>Plan
+          </button>
+          <button class="event-type-btn" data-type="social">
+            <span class="event-type-icon">🎉</span>Social
+          </button>
+          <button class="event-type-btn" data-type="other">
+            <span class="event-type-icon">📌</span>Other
+          </button>
+        </div>
+      </div>
+
       <div class="form-row">
-  <div class="form-group">
-    <label for="eventDate">Date</label>
-    <input type="date" id="eventDate" />
-  </div>
-</div>
+        <div class="form-group">
+          <label for="eventDate">Date</label>
+          <input type="date" id="eventDate" />
+        </div>
+      </div>
 
-<!-- Clock Picker -->
-<div class="form-group">
-  <label>Time</label>
-  <div class="time-display-row">
-    <button class="time-segment active" id="startHourBtn">09</button>
-    <span class="time-colon">:</span>
-    <button class="time-segment" id="startMinBtn">00</button>
-    <div class="ampm-toggle">
-      <button class="ampm-btn active" id="startAmBtn">AM</button>
-      <button class="ampm-btn" id="startPmBtn">PM</button>
-    </div>
-    <span class="time-range-label">to</span>
-    <button class="time-segment" id="endHourBtn">10</button>
-    <span class="time-colon">:</span>
-    <button class="time-segment" id="endMinBtn">00</button>
-    <div class="ampm-toggle">
-      <button class="ampm-btn active" id="endAmBtn">AM</button>
-      <button class="ampm-btn" id="endPmBtn">PM</button>
-    </div>
-  </div>
-</div>
+      <!-- Clock Picker -->
+      <div class="form-group">
+        <label>Time</label>
+        <div class="time-display-row">
+          <button class="time-segment active" id="startHourBtn">09</button>
+          <span class="time-colon">:</span>
+          <button class="time-segment" id="startMinBtn">00</button>
+          <div class="ampm-toggle">
+            <button class="ampm-btn active" id="startAmBtn">AM</button>
+            <button class="ampm-btn" id="startPmBtn">PM</button>
+          </div>
+          <span class="time-range-label">to</span>
+          <button class="time-segment" id="endHourBtn">10</button>
+          <span class="time-colon">:</span>
+          <button class="time-segment" id="endMinBtn">00</button>
+          <div class="ampm-toggle">
+            <button class="ampm-btn active" id="endAmBtn">AM</button>
+            <button class="ampm-btn" id="endPmBtn">PM</button>
+          </div>
+        </div>
+      </div>
 
-<!-- Clock Face -->
-<div class="clock-picker" id="clockPicker">
-  <div class="clock-face" id="clockFace">
-    <div class="clock-hand" id="clockHand"></div>
-    <div class="clock-center"></div>
-    <div class="clock-numbers" id="clockNumbers"></div>
+      <!-- Clock Face -->
+      <div class="clock-picker" id="clockPicker">
+        <div class="clock-face" id="clockFace">
+          <div class="clock-hand" id="clockHand"></div>
+          <div class="clock-center"></div>
+          <div class="clock-numbers" id="clockNumbers"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="eventDescription">Description</label>
+        <textarea id="eventDescription" placeholder="Add description (optional)" rows="3"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost modal-cancel" id="modalCancel">Cancel</button>
+        <button class="btn-primary" id="saveEvent">Save Event</button>
+      </div>
+      <p class="modal-error" id="modalError"></p>
+    </div>
   </div>
-</div>
+
+  <!-- Event Detail Modal -->
+  <div class="modal" id="eventDetailModal">
+    <div class="modal-header">
+      <h3 id="detailTitle"></h3>
+      <button class="modal-close" id="detailClose">✕</button>
     </div>
-    <div class="form-group">
-      <label for="eventDescription">Description</label>
-      <textarea id="eventDescription" placeholder="Add description (optional)" rows="3"></textarea>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Type</label>
+        <span class="detail-type-badge" id="detailTypeBadge"></span>
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <p id="detailDate" style="color:var(--text); font-size:0.95rem;"></p>
+      </div>
+      <div class="form-group">
+        <label>Time</label>
+        <p id="detailTime" style="color:var(--text); font-size:0.95rem;"></p>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <p id="detailDescription" style="color:var(--text-muted); font-size:0.95rem;"></p>
+      </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-ghost modal-cancel" id="modalCancel">Cancel</button>
-      <button class="btn-primary" id="saveEvent">Save Event</button>
-    </div>
-    <p class="modal-error" id="modalError"></p>
   </div>
-</div>
+
   <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="sidebar" id="sidebar">
@@ -98,9 +155,7 @@
     <header>
       <div class="header-inner">
         <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Toggle menu">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </button>
         <div class="logo-mark">
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
@@ -127,9 +182,11 @@
           </ul>
         </nav>
 
-        <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode" style="margin-left: auto;">
-          <span class="toggle-icon sun">Dark Mode</span>
-          <span class="toggle-icon moon">Light Mode</span>
+          <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <div class="toggle-thumb">
+            <span class="sun">☀️</span>
+            <span class="moon">🌙</span>
+          </div>
         </button>
       </div>
     </header>
@@ -190,6 +247,18 @@
           </button>
         </div>
 
+        <!-- Event Type Legend (shown when calendar is visible) -->
+        <div class="event-legend" id="eventLegend" style="display:none;">
+          <div class="legend-item"><span class="legend-dot study"></span>Study</div>
+          <div class="legend-item"><span class="legend-dot task"></span>Task</div>
+          <div class="legend-item"><span class="legend-dot meeting"></span>Meeting</div>
+          <div class="legend-item"><span class="legend-dot travel"></span>Travel</div>
+          <div class="legend-item"><span class="legend-dot food"></span>Food</div>
+          <div class="legend-item"><span class="legend-dot plan"></span>Plan</div>
+          <div class="legend-item"><span class="legend-dot social"></span>Social</div>
+          <div class="legend-item"><span class="legend-dot other"></span>Other</div>
+        </div>
+
         <div id="content"></div>
       </div>
     </main>
@@ -238,6 +307,34 @@
       const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
       const SCOPES = 'https://www.googleapis.com/auth/calendar';
 
+      // ─── Event Type Config ───
+      const EVENT_TYPES = {
+        study:   { label: 'Study',   icon: '📚', color: '#2563eb' },
+        task:    { label: 'Task',    icon: '✅', color: '#d97706' },
+        meeting: { label: 'Meeting', icon: '🤝', color: '#7c3aed' },
+        travel:  { label: 'Travel',  icon: '✈️', color: '#0891b2' },
+        food:    { label: 'Food',    icon: '🍽️', color: '#dc2626' },
+        plan:    { label: 'Plan',    icon: '📋', color: '#059669' },
+        social:  { label: 'Social',  icon: '🎉', color: '#db2777' },
+        other:   { label: 'Other',   icon: '📌', color: '#6b7280' },
+      };
+
+      // Encode event type in description using a tag
+      function encodeEventType(type, description) {
+        return `[type:${type}]${description ? '\n' + description : ''}`;
+      }
+
+      function decodeEventType(description) {
+        if (!description) return { type: 'other', description: '' };
+        const match = description.match(/^\[type:(\w+)\]/);
+        if (match) {
+          const type = match[1];
+          const desc = description.replace(/^\[type:\w+\]\n?/, '');
+          return { type: EVENT_TYPES[type] ? type : 'other', description: desc };
+        }
+        return { type: 'other', description };
+      }
+
       let tokenClient;
       let gapiInited = false;
       let gisInited = false;
@@ -282,6 +379,7 @@
           document.getElementById('authorize_button').innerText = 'Refresh';
           document.getElementById('authPanel').style.display = 'none';
           document.getElementById('heroSection').style.display = 'none';
+          document.getElementById('eventLegend').style.display = 'flex';
           await listUpcomingEvents();
         };
         if (gapi.client.getToken() === null) {
@@ -302,6 +400,7 @@
           document.getElementById('authPanel').style.display = 'flex';
           document.getElementById('heroSection').style.display = 'block';
           document.getElementById('weekNav').style.display = 'none';
+          document.getElementById('eventLegend').style.display = 'none';
         }
       }
 
@@ -355,15 +454,11 @@
         }
         html += '</div><div class="week-grid">';
 
-        // Start at 6:30 AM (slot 13) and go to 10:30 PM (slot 45)
-        // Each slot = 30 minutes: slot number = hour * 2 + (minutes === 30 ? 1 : 0)
         for (let slot = 13; slot <= 45; slot++) {
           const hour = Math.floor(slot / 2);
           const minutes = (slot % 2 === 0) ? 0 : 30;
 
           html += '<div class="time-row">';
-
-          // Show the hour label on the :00 row, a subtle dash on the :30 row
           if (minutes === 0) {
             html += `<div class="time-label">${hour % 12 || 12}<span class="ampm">${hour < 12 ? 'AM' : 'PM'}</span></div>`;
           } else {
@@ -377,24 +472,55 @@
 
             html += `<div class="day-cell" data-day="${d}" data-hour="${hour}" data-min="${minutes}">`;
 
-            events.forEach(event => {
+            const cellEvents = events.filter(event => {
               const eventStart = new Date(event.start.dateTime || event.start.date);
-              const eventEnd = new Date(event.end.dateTime || event.end.date);
-
-              if (
-                eventStart.getDate() === currentDay.getDate() &&
-                eventStart.getMonth() === currentDay.getMonth() &&
-                eventStart.getHours() === hour &&
+              return (
+                eventStart.getDate()    === currentDay.getDate()  &&
+                eventStart.getMonth()   === currentDay.getMonth() &&
+                eventStart.getHours()   === hour &&
                 eventStart.getMinutes() >= minutes &&
                 eventStart.getMinutes() < minutes + 30
-              ) {
-                const duration = (eventEnd - eventStart) / (1000 * 60);
-                const heightPercent = Math.max((duration / 30) * 100, 30);
-                html += `<div class="event" style="height:${heightPercent}%">
-                  <div class="event-title">${event.summary || 'Untitled'}</div>
+              );
+            });
+
+            const columns = [];
+            cellEvents.forEach(event => {
+              let placed = false;
+              for (let col = 0; col < columns.length; col++) {
+                const lastEvent = columns[col][columns[col].length - 1];
+                const lastEnd   = new Date(lastEvent.end.dateTime || lastEvent.end.date);
+                const thisStart = new Date(event.start.dateTime   || event.start.date);
+                if (thisStart >= lastEnd) { columns[col].push(event); placed = true; break; }
+              }
+              if (!placed) columns.push([event]);
+            });
+
+            const totalCols = columns.length;
+            columns.forEach((col, colIndex) => {
+              col.forEach(event => {
+                const eventStart = new Date(event.start.dateTime || event.start.date);
+                const eventEnd   = new Date(event.end.dateTime   || event.end.date);
+                const duration   = (eventEnd - eventStart) / (1000 * 60);
+                const heightPct  = Math.max((duration / 30) * 100, 30);
+                const widthPct   = 100 / totalCols;
+                const leftPct    = colIndex * widthPct;
+
+                // Decode type from description
+                const { type } = decodeEventType(event.description);
+                const typeConfig = EVENT_TYPES[type] || EVENT_TYPES.other;
+
+                html += `<div class="event" data-type="${type}" data-event='${JSON.stringify(event).replace(/'/g, "&#39;")}'
+                  style="
+                    height:${heightPct}%;
+                    width:calc(${widthPct}% - 6px);
+                    left:calc(${leftPct}% + 3px);
+                    right:auto;
+                    background:${typeConfig.color};
+                  ">
+                  <div class="event-title">${typeConfig.icon} ${event.summary || 'Untitled'}</div>
                   <div class="event-time">${eventStart.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'})}</div>
                 </div>`;
-              }
+              });
             });
 
             html += '</div>';
