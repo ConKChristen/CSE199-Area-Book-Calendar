@@ -50,10 +50,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ── Week Navigation ──
+  // ── Week / Day Navigation ──
   document.getElementById('prevWeek')?.addEventListener('click', () => { currentWeekOffset--; listUpcomingEvents(); });
   document.getElementById('nextWeek')?.addEventListener('click', () => { currentWeekOffset++; listUpcomingEvents(); });
   document.getElementById('todayButton')?.addEventListener('click', () => { currentWeekOffset = 0; listUpcomingEvents(); });
+
+  document.getElementById('prevDay')?.addEventListener('click', () => { currentDayOffset--; listUpcomingEvents(); });
+  document.getElementById('nextDay')?.addEventListener('click', () => { currentDayOffset++; listUpcomingEvents(); });
+  document.getElementById('todayDayButton')?.addEventListener('click', () => { currentDayOffset = 0; listUpcomingEvents(); });
+
+  // Re-render on window resize to swap between weekly and daily view
+  window.addEventListener('resize', () => {
+    if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken()) {
+      listUpcomingEvents();
+    }
+  });
 
   // ── Event Type Config ──
   const EVENT_TYPES = {
@@ -210,13 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('endPmBtn')?.addEventListener('click',   () => { timeState.endAmpm   = 'PM'; updateTimeDisplays(); });
 
   // ── Modal Open / Close ──
-  const newEventBtn  = document.getElementById('newEventBtn');
-  const modalOverlay = document.getElementById('modalOverlay');
-  const eventModal   = document.getElementById('eventModal');
-  const modalClose   = document.getElementById('modalClose');
-  const modalCancel  = document.getElementById('modalCancel');
-  const saveEventBtn = document.getElementById('saveEvent');
-  const modalError   = document.getElementById('modalError');
+  const newEventBtn      = document.getElementById('newEventBtn');
+  const newEventBtnMobile = document.getElementById('newEventBtnMobile');
+  const modalOverlay     = document.getElementById('modalOverlay');
+  const eventModal       = document.getElementById('eventModal');
+  const modalClose       = document.getElementById('modalClose');
+  const modalCancel      = document.getElementById('modalCancel');
+  const saveEventBtn     = document.getElementById('saveEvent');
+  const modalError       = document.getElementById('modalError');
 
   function openModal() {
     document.getElementById('eventTitle').value       = '';
@@ -250,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   newEventBtn?.addEventListener('click', openModal);
+  newEventBtnMobile?.addEventListener('click', openModal);
   modalClose?.addEventListener('click',  closeModal);
   modalCancel?.addEventListener('click', closeModal);
   modalOverlay?.addEventListener('click', (e) => {
@@ -280,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
     saveEventBtn.textContent = 'Saving…';
     saveEventBtn.disabled    = true;
 
-    // Encode event type into description
     const encodedDescription = encodeEventType(selectedEventType, desc);
 
     try {
@@ -328,10 +340,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('detailDate').textContent  = start.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
     document.getElementById('detailDescription').textContent = description || 'No description.';
 
-    // Show type badge with color
     const badge = document.getElementById('detailTypeBadge');
     badge.textContent = `${typeConfig.icon} ${typeConfig.label}`;
     badge.style.background = typeConfig.color;
+
+    detail.dataset.eventId = event.id;
 
     document.getElementById('modalOverlay').classList.add('active');
     requestAnimationFrame(() => detail.classList.add('active'));
@@ -340,6 +353,31 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('detailClose')?.addEventListener('click', () => {
     document.getElementById('eventDetailModal').classList.remove('active');
     document.getElementById('modalOverlay').classList.remove('active');
+  });
+
+  document.getElementById('deleteEvent')?.addEventListener('click', async () => {
+    const detail  = document.getElementById('eventDetailModal');
+    const eventId = detail.dataset.eventId;
+    if (!eventId) return;
+
+    const btn = document.getElementById('deleteEvent');
+    btn.textContent = 'Deleting…';
+    btn.disabled = true;
+
+    try {
+      await gapi.client.calendar.events.delete({
+        calendarId: 'primary',
+        eventId: eventId,
+      });
+      detail.classList.remove('active');
+      document.getElementById('modalOverlay').classList.remove('active');
+      await listUpcomingEvents();
+    } catch (err) {
+      alert('Failed to delete event: ' + (err.result?.error?.message || err.message));
+    } finally {
+      btn.textContent = 'Delete';
+      btn.disabled = false;
+    }
   });
 
   // ── Content Click Handler ──
@@ -361,12 +399,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const hour     = parseInt(cell.dataset.hour);
     const min      = parseInt(cell.dataset.min);
 
-    const now = new Date();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
-    startOfWeek.setHours(0, 0, 0, 0);
-    const clickedDay = new Date(startOfWeek);
-    clickedDay.setDate(startOfWeek.getDate() + dayIndex);
+    let clickedDay;
+
+    if (isMobile()) {
+      // In day view, the displayed day is today + currentDayOffset
+      const today = new Date();
+      clickedDay = new Date(today);
+      clickedDay.setDate(today.getDate() + currentDayOffset);
+      clickedDay.setHours(0, 0, 0, 0);
+    } else {
+      const now = new Date();
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
+      startOfWeek.setHours(0, 0, 0, 0);
+      clickedDay = new Date(startOfWeek);
+      clickedDay.setDate(startOfWeek.getDate() + dayIndex);
+    }
 
     openModal();
 

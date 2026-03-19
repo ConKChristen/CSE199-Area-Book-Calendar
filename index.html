@@ -130,6 +130,9 @@
         <label>Description</label>
         <p id="detailDescription" style="color:var(--text-muted); font-size:0.95rem;"></p>
       </div>
+      <div class="modal-actions" style="margin-top: 8px;">
+        <button class="btn-delete" id="deleteEvent">🗑 Delete Event</button>
+      </div>
     </div>
   </div>
 
@@ -182,7 +185,7 @@
           </ul>
         </nav>
 
-          <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
           <div class="toggle-thumb">
             <span class="sun">☀️</span>
             <span class="moon">🌙</span>
@@ -228,6 +231,7 @@
           </div>
         </div>
 
+        <!-- Desktop Week Navigation -->
         <div class="week-navigation" style="display: none;" id="weekNav">
           <button id="prevWeek" class="nav-arrow">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -240,6 +244,24 @@
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button id="newEventBtn" class="btn-new-event">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:6px">
+              <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            New Event
+          </button>
+        </div>
+
+        <!-- Mobile Day Navigation -->
+        <div class="mobile-day-navigation" id="mobileNav" style="display: none;">
+          <button id="prevDay" class="nav-arrow">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button id="todayDayButton" class="btn-today">Today</button>
+          <span id="mobileDayDisplay"></span>
+          <button id="nextDay" class="nav-arrow">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button id="newEventBtnMobile" class="btn-new-event">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:6px">
               <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
@@ -302,7 +324,7 @@
     </footer>
 
     <script type="text/javascript">
-      const CLIENT_ID = '882122220134-5fel2jud1bgat4mjnu4n34g3gangq717.apps.googleusercontent.com';
+      const CLIENT_ID = '882122220134-4udf0avmnrrm0m313i6on3njenq9387j.apps.googleusercontent.com';
       const API_KEY = 'AIzaSyBC7DukCpSrOjrguRrca3Opvc7MTKCP-lc';
       const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
       const SCOPES = 'https://www.googleapis.com/auth/calendar';
@@ -319,7 +341,6 @@
         other:   { label: 'Other',   icon: '📌', color: '#6b7280' },
       };
 
-      // Encode event type in description using a tag
       function encodeEventType(type, description) {
         return `[type:${type}]${description ? '\n' + description : ''}`;
       }
@@ -339,6 +360,7 @@
       let gapiInited = false;
       let gisInited = false;
       let currentWeekOffset = 0;
+      let currentDayOffset = 0;
 
       document.getElementById('authorize_button').style.visibility = 'hidden';
       document.getElementById('signout_button').style.visibility = 'hidden';
@@ -400,24 +422,44 @@
           document.getElementById('authPanel').style.display = 'flex';
           document.getElementById('heroSection').style.display = 'block';
           document.getElementById('weekNav').style.display = 'none';
+          document.getElementById('mobileNav').style.display = 'none';
           document.getElementById('eventLegend').style.display = 'none';
         }
+      }
+
+      function isMobile() {
+        return window.innerWidth <= 768;
       }
 
       async function listUpcomingEvents() {
         let response;
         try {
-          const now = new Date();
-          const startOfWeek = new Date(now);
-          startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
-          startOfWeek.setHours(0, 0, 0, 0);
-          const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 7);
+          let timeMin, timeMax;
+
+          if (isMobile()) {
+            const today = new Date();
+            const day = new Date(today);
+            day.setDate(today.getDate() + currentDayOffset);
+            day.setHours(0, 0, 0, 0);
+            const dayEnd = new Date(day);
+            dayEnd.setDate(day.getDate() + 1);
+            timeMin = day.toISOString();
+            timeMax = dayEnd.toISOString();
+          } else {
+            const now = new Date();
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
+            startOfWeek.setHours(0, 0, 0, 0);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 7);
+            timeMin = startOfWeek.toISOString();
+            timeMax = endOfWeek.toISOString();
+          }
 
           response = await gapi.client.calendar.events.list({
             'calendarId': 'primary',
-            'timeMin': startOfWeek.toISOString(),
-            'timeMax': endOfWeek.toISOString(),
+            'timeMin': timeMin,
+            'timeMax': timeMax,
             'showDeleted': false,
             'singleEvents': true,
             'orderBy': 'startTime',
@@ -426,7 +468,105 @@
           document.getElementById('content').innerText = err.message;
           return;
         }
-        renderWeekView(response.result.items);
+
+        if (isMobile()) {
+          renderDayView(response.result.items);
+        } else {
+          renderWeekView(response.result.items);
+        }
+      }
+
+      function renderDayView(events) {
+        const contentDiv = document.getElementById('content');
+        const today = new Date();
+        const day = new Date(today);
+        day.setDate(today.getDate() + currentDayOffset);
+        day.setHours(0, 0, 0, 0);
+
+        // Show mobile nav, hide desktop nav
+        document.getElementById('weekNav').style.display = 'none';
+        document.getElementById('mobileNav').style.display = 'flex';
+
+        // Update mobile day display
+        const isToday = currentDayOffset === 0;
+        const dayLabel = isToday
+          ? 'Today'
+          : day.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        document.getElementById('mobileDayDisplay').innerText = dayLabel;
+
+        const dayName = day.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayNum  = day.getDate();
+
+        let html = '<div class="calendar-week-container">';
+        html += `<div class="week-header day-view-header">
+          <div class="time-column-header"></div>
+          <div class="day-header ${isToday ? 'today' : ''}">
+            <div class="day-name">${dayName}</div>
+            <div class="day-number">${dayNum}</div>
+          </div>
+        </div>`;
+        html += '<div class="week-grid">';
+
+        for (let slot = 13; slot <= 45; slot++) {
+          const hour    = Math.floor(slot / 2);
+          const minutes = (slot % 2 === 0) ? 0 : 30;
+
+          html += '<div class="time-row day-view-row">';
+          if (minutes === 0) {
+            html += `<div class="time-label">${hour % 12 || 12}<span class="ampm">${hour < 12 ? 'AM' : 'PM'}</span></div>`;
+          } else {
+            html += `<div class="time-label" style="font-size:9px;padding-top:6px;opacity:0.5;">&mdash;30</div>`;
+          }
+
+          html += `<div class="day-cell day-view-cell" data-day="0" data-hour="${hour}" data-min="${minutes}">`;
+
+          const cellEvents = events.filter(event => {
+            const eventStart = new Date(event.start.dateTime || event.start.date);
+            return (
+              eventStart.getHours()   === hour &&
+              eventStart.getMinutes() >= minutes &&
+              eventStart.getMinutes() <  minutes + 30
+            );
+          });
+
+          const columns = [];
+          cellEvents.forEach(event => {
+            let placed = false;
+            for (let col = 0; col < columns.length; col++) {
+              const lastEvent = columns[col][columns[col].length - 1];
+              const lastEnd   = new Date(lastEvent.end.dateTime || lastEvent.end.date);
+              const thisStart = new Date(event.start.dateTime   || event.start.date);
+              if (thisStart >= lastEnd) { columns[col].push(event); placed = true; break; }
+            }
+            if (!placed) columns.push([event]);
+          });
+
+          const totalCols = columns.length;
+          columns.forEach((col, colIndex) => {
+            col.forEach(event => {
+              const eventStart = new Date(event.start.dateTime || event.start.date);
+              const eventEnd   = new Date(event.end.dateTime   || event.end.date);
+              const duration   = (eventEnd - eventStart) / (1000 * 60);
+              const heightPct  = Math.max((duration / 30) * 100, 30);
+              const widthPct   = 100 / totalCols;
+              const leftPct    = colIndex * widthPct;
+
+              const { type } = decodeEventType(event.description);
+              const typeConfig = EVENT_TYPES[type] || EVENT_TYPES.other;
+
+              html += `<div class="event" data-type="${type}" data-event='${JSON.stringify(event).replace(/'/g, "&#39;")}' 
+                style="height:${heightPct}%;width:calc(${widthPct}% - 6px);left:calc(${leftPct}% + 3px);right:auto;background:${typeConfig.color};">
+                <div class="event-title">${typeConfig.icon} ${event.summary || 'Untitled'}</div>
+                <div class="event-time">${eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
+              </div>`;
+            });
+          });
+
+          html += '</div></div>';
+        }
+
+        html += '</div></div>';
+        contentDiv.innerHTML = html;
       }
 
       function renderWeekView(events) {
@@ -436,7 +576,9 @@
         startOfWeek.setDate(now.getDate() - now.getDay() + (currentWeekOffset * 7));
         startOfWeek.setHours(0, 0, 0, 0);
 
+        // Show desktop nav, hide mobile nav
         document.getElementById('weekNav').style.display = 'flex';
+        document.getElementById('mobileNav').style.display = 'none';
         updateWeekDisplay();
 
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -505,7 +647,6 @@
                 const widthPct   = 100 / totalCols;
                 const leftPct    = colIndex * widthPct;
 
-                // Decode type from description
                 const { type } = decodeEventType(event.description);
                 const typeConfig = EVENT_TYPES[type] || EVENT_TYPES.other;
 
@@ -544,9 +685,20 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
+        // Desktop week nav
         document.getElementById('prevWeek')?.addEventListener('click', () => { currentWeekOffset--; listUpcomingEvents(); });
         document.getElementById('nextWeek')?.addEventListener('click', () => { currentWeekOffset++; listUpcomingEvents(); });
         document.getElementById('todayButton')?.addEventListener('click', () => { currentWeekOffset = 0; listUpcomingEvents(); });
+
+        // Mobile day nav
+        document.getElementById('prevDay')?.addEventListener('click', () => { currentDayOffset--; listUpcomingEvents(); });
+        document.getElementById('nextDay')?.addEventListener('click', () => { currentDayOffset++; listUpcomingEvents(); });
+        document.getElementById('todayDayButton')?.addEventListener('click', () => { currentDayOffset = 0; listUpcomingEvents(); });
+
+        // Re-render on resize so switching viewport triggers correct view
+        window.addEventListener('resize', () => {
+          if (gapi.client && gapi.client.getToken()) listUpcomingEvents();
+        });
       });
     </script>
 
