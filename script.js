@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('nextDay')?.addEventListener('click', nextDay);
   document.getElementById('todayDayButton')?.addEventListener('click', goToDayToday);
 
-
   // Re-render on window resize to swap between weekly and daily view
   window.addEventListener('resize', () => {
     if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken()) {
@@ -222,14 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('endPmBtn')?.addEventListener('click',   () => { timeState.endAmpm   = 'PM'; updateTimeDisplays(); });
 
   // ── Modal Open / Close ──
-  const newEventBtn      = document.getElementById('newEventBtn');
+  const newEventBtn       = document.getElementById('newEventBtn');
   const newEventBtnMobile = document.getElementById('newEventBtnMobile');
-  const modalOverlay     = document.getElementById('modalOverlay');
-  const eventModal       = document.getElementById('eventModal');
-  const modalClose       = document.getElementById('modalClose');
-  const modalCancel      = document.getElementById('modalCancel');
-  const saveEventBtn     = document.getElementById('saveEvent');
-  const modalError       = document.getElementById('modalError');
+  const modalOverlay      = document.getElementById('modalOverlay');
+  const eventModal        = document.getElementById('eventModal');
+  const modalClose        = document.getElementById('modalClose');
+  const modalCancel       = document.getElementById('modalCancel');
+  const saveEventBtn      = document.getElementById('saveEvent');
+  const modalError        = document.getElementById('modalError');
 
   function openModal() {
     document.getElementById('eventTitle').value       = '';
@@ -260,6 +259,10 @@ document.addEventListener('DOMContentLoaded', () => {
     eventModal?.classList.remove('active');
     modalOverlay?.classList.remove('active');
     document.getElementById('clockPicker')?.classList.remove('visible');
+    // Reset edit mode
+    delete saveEventBtn.dataset.editId;
+    document.querySelector('#eventModal .modal-header h3').textContent = 'New Event';
+    saveEventBtn.textContent = 'Save Event';
   }
 
   newEventBtn?.addEventListener('click', openModal);
@@ -270,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === modalOverlay) closeModal();
   });
 
-  // ── Save Event ──
+  // ── Save / Update Event ──
   saveEventBtn?.addEventListener('click', async () => {
     const title = document.getElementById('eventTitle').value.trim();
     const date  = document.getElementById('eventDate').value;
@@ -295,30 +298,52 @@ document.addEventListener('DOMContentLoaded', () => {
     saveEventBtn.disabled    = true;
 
     const encodedDescription = encodeEventType(selectedEventType, desc);
+    const editId = saveEventBtn.dataset.editId;
 
     try {
-      await gapi.client.calendar.events.insert({
-        calendarId: 'primary',
-        resource: {
-          summary:     title,
-          description: encodedDescription,
-          start: {
-            dateTime: `${date}T${startTime}:00`,
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      if (editId) {
+        // ── Update existing event ──
+        await gapi.client.calendar.events.patch({
+          calendarId: 'primary',
+          eventId: editId,
+          resource: {
+            summary:     title,
+            description: encodedDescription,
+            start: {
+              dateTime: `${date}T${startTime}:00`,
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+            end: {
+              dateTime: `${date}T${endTime}:00`,
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
           },
-          end: {
-            dateTime: `${date}T${endTime}:00`,
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+      } else {
+        // ── Create new event ──
+        await gapi.client.calendar.events.insert({
+          calendarId: 'primary',
+          resource: {
+            summary:     title,
+            description: encodedDescription,
+            start: {
+              dateTime: `${date}T${startTime}:00`,
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+            end: {
+              dateTime: `${date}T${endTime}:00`,
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
           },
-        },
-      });
+        });
+      }
 
       closeModal();
       await listUpcomingEvents();
     } catch (err) {
       modalError.textContent = err.result?.error?.message || 'Failed to save. Please try again.';
     } finally {
-      saveEventBtn.textContent = 'Save Event';
+      saveEventBtn.textContent = editId ? 'Update Event' : 'Save Event';
       saveEventBtn.disabled    = false;
     }
   });
@@ -336,16 +361,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const typeConfig = EVENT_TYPES[type] || EVENT_TYPES.other;
 
     const detail = document.getElementById('eventDetailModal');
-    document.getElementById('detailTitle').textContent = event.summary || 'Untitled';
-    document.getElementById('detailTime').textContent  = timeStr;
-    document.getElementById('detailDate').textContent  = start.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    document.getElementById('detailTitle').textContent       = event.summary || 'Untitled';
+    document.getElementById('detailTime').textContent        = timeStr;
+    document.getElementById('detailDate').textContent        = start.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
     document.getElementById('detailDescription').textContent = description || 'No description.';
 
     const badge = document.getElementById('detailTypeBadge');
-    badge.textContent = `${typeConfig.icon} ${typeConfig.label}`;
+    badge.textContent      = `${typeConfig.icon} ${typeConfig.label}`;
     badge.style.background = typeConfig.color;
 
-    detail.dataset.eventId = event.id;
+    // Store full event for editing
+    detail.dataset.eventId   = event.id;
+    detail.dataset.eventJson = JSON.stringify(event);
 
     document.getElementById('modalOverlay').classList.add('active');
     requestAnimationFrame(() => detail.classList.add('active'));
@@ -356,6 +383,53 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('modalOverlay').classList.remove('active');
   });
 
+  // ── Edit Event ──
+  document.getElementById('editEvent')?.addEventListener('click', () => {
+    const detail = document.getElementById('eventDetailModal');
+    const event  = JSON.parse(detail.dataset.eventJson);
+
+    // Close detail modal
+    detail.classList.remove('active');
+    document.getElementById('modalOverlay').classList.remove('active');
+
+    // Open create modal (resets fields), then override with event data
+    openModal();
+
+    const start = new Date(event.start.dateTime || event.start.date);
+    const end   = new Date(event.end.dateTime   || event.end.date);
+
+    // Pre-fill title, date, description
+    document.getElementById('eventTitle').value       = event.summary || '';
+    document.getElementById('eventDescription').value = decodeEventType(event.description).description || '';
+
+    const yyyy = start.getFullYear();
+    const mm   = String(start.getMonth() + 1).padStart(2, '0');
+    const dd   = String(start.getDate()).padStart(2, '0');
+    document.getElementById('eventDate').value = `${yyyy}-${mm}-${dd}`;
+
+    // Pre-fill event type
+    const { type } = decodeEventType(event.description);
+    selectedEventType = type;
+    document.querySelectorAll('.event-type-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.type === type);
+    });
+
+    // Pre-fill time
+    timeState.startHour  = start.getHours() % 12 || 12;
+    timeState.startMin   = start.getMinutes();
+    timeState.startAmpm  = start.getHours() < 12 ? 'AM' : 'PM';
+    timeState.endHour    = end.getHours() % 12 || 12;
+    timeState.endMin     = end.getMinutes();
+    timeState.endAmpm    = end.getHours() < 12 ? 'AM' : 'PM';
+    updateTimeDisplays();
+
+    // Switch modal to edit mode
+    document.querySelector('#eventModal .modal-header h3').textContent = 'Edit Event';
+    saveEventBtn.textContent    = 'Update Event';
+    saveEventBtn.dataset.editId = event.id;
+  });
+
+  // ── Delete Event ──
   document.getElementById('deleteEvent')?.addEventListener('click', async () => {
     const detail  = document.getElementById('eventDetailModal');
     const eventId = detail.dataset.eventId;
@@ -363,12 +437,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btn = document.getElementById('deleteEvent');
     btn.textContent = 'Deleting…';
-    btn.disabled = true;
+    btn.disabled    = true;
 
     try {
       await gapi.client.calendar.events.delete({
         calendarId: 'primary',
-        eventId: eventId,
+        eventId:    eventId,
       });
       detail.classList.remove('active');
       document.getElementById('modalOverlay').classList.remove('active');
@@ -377,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Failed to delete event: ' + (err.result?.error?.message || err.message));
     } finally {
       btn.textContent = 'Delete';
-      btn.disabled = false;
+      btn.disabled    = false;
     }
   });
 
@@ -403,9 +477,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let clickedDay;
 
     if (isMobile()) {
-      // In day view, the displayed day is today + currentDayOffset
       const today = new Date();
-      clickedDay = new Date(today);
+      clickedDay  = new Date(today);
       clickedDay.setDate(today.getDate() + currentDayOffset);
       clickedDay.setHours(0, 0, 0, 0);
     } else {
