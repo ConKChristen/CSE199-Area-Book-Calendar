@@ -685,16 +685,6 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
-        // Desktop week nav
-        document.getElementById('prevWeek')?.addEventListener('click', () => { currentWeekOffset--; listUpcomingEvents(); });
-        document.getElementById('nextWeek')?.addEventListener('click', () => { currentWeekOffset++; listUpcomingEvents(); });
-        document.getElementById('todayButton')?.addEventListener('click', () => { currentWeekOffset = 0; listUpcomingEvents(); });
-
-        // Mobile day nav
-        document.getElementById('prevDay')?.addEventListener('click', () => { currentDayOffset--; listUpcomingEvents(); });
-        document.getElementById('nextDay')?.addEventListener('click', () => { currentDayOffset++; listUpcomingEvents(); });
-        document.getElementById('todayDayButton')?.addEventListener('click', () => { currentDayOffset = 0; listUpcomingEvents(); });
-
         // Re-render on resize so switching viewport triggers correct view
         window.addEventListener('resize', () => {
           if (gapi.client && gapi.client.getToken()) listUpcomingEvents();
