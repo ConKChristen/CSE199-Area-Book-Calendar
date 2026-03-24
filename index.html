@@ -362,6 +362,13 @@
       let currentWeekOffset = 0;
       let currentDayOffset = 0;
 
+      function prevWeek()  { currentWeekOffset--; listUpcomingEvents(); }
+      function nextWeek()  { currentWeekOffset++; listUpcomingEvents(); }
+      function goToToday() { currentWeekOffset = 0; listUpcomingEvents(); }
+      function prevDay()   { currentDayOffset--; listUpcomingEvents(); }
+      function nextDay()   { currentDayOffset++; listUpcomingEvents(); }
+      function goToDayToday() { currentDayOffset = 0; listUpcomingEvents(); }
+
       document.getElementById('authorize_button').style.visibility = 'hidden';
       document.getElementById('signout_button').style.visibility = 'hidden';
 

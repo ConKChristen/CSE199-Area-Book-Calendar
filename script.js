@@ -51,14 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Week / Day Navigation ──
+  document.getElementById('prevWeek')?.addEventListener('click', prevWeek);
+  document.getElementById('nextWeek')?.addEventListener('click', nextWeek);
+  document.getElementById('todayButton')?.addEventListener('click', goToToday);
 
-  document.getElementById('prevWeek')?.addEventListener('click', () => { currentWeekOffset--; listUpcomingEvents(); });
-  document.getElementById('nextWeek')?.addEventListener('click', () => { currentWeekOffset++; listUpcomingEvents(); });
-  document.getElementById('todayButton')?.addEventListener('click', () => { currentWeekOffset = 0; listUpcomingEvents(); });
-
-  document.getElementById('prevDay')?.addEventListener('click', () => { currentDayOffset--; listUpcomingEvents(); });
-  document.getElementById('nextDay')?.addEventListener('click', () => { currentDayOffset++; listUpcomingEvents(); });
-  document.getElementById('todayDayButton')?.addEventListener('click', () => { currentDayOffset = 0; listUpcomingEvents(); });
+  document.getElementById('prevDay')?.addEventListener('click', prevDay);
+  document.getElementById('nextDay')?.addEventListener('click', nextDay);
+  document.getElementById('todayDayButton')?.addEventListener('click', goToDayToday);
 
 
   // Re-render on window resize to swap between weekly and daily view
