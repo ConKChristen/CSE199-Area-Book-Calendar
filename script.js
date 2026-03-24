@@ -51,9 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Week / Day Navigation ──
+
   document.getElementById('prevWeek')?.addEventListener('click', () => { currentWeekOffset--; listUpcomingEvents(); });
   document.getElementById('nextWeek')?.addEventListener('click', () => { currentWeekOffset++; listUpcomingEvents(); });
   document.getElementById('todayButton')?.addEventListener('click', () => { currentWeekOffset = 0; listUpcomingEvents(); });
+
+  document.getElementById('prevDay')?.addEventListener('click', () => { currentDayOffset--; listUpcomingEvents(); });
+  document.getElementById('nextDay')?.addEventListener('click', () => { currentDayOffset++; listUpcomingEvents(); });
+  document.getElementById('todayDayButton')?.addEventListener('click', () => { currentDayOffset = 0; listUpcomingEvents(); });
 
 
   // Re-render on window resize to swap between weekly and daily view
