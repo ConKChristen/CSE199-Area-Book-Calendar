@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') {
       closeSidebar();
       closeModal();
+      closeColorModal();
     }
   });
 
@@ -59,36 +60,29 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('nextDay')?.addEventListener('click', nextDay);
   document.getElementById('todayDayButton')?.addEventListener('click', goToDayToday);
 
-  // Re-render on window resize to swap between weekly and daily view
   window.addEventListener('resize', () => {
     if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken()) {
       listUpcomingEvents();
     }
   });
 
-  // ── Event Type Config ──
-  const EVENT_TYPES = {
-    study:   { label: 'Study',   icon: '📚', color: '#2563eb' },
-    task:    { label: 'Task',    icon: '✅', color: '#d97706' },
-    meeting: { label: 'Meeting', icon: '🤝', color: '#7c3aed' },
-    travel:  { label: 'Travel',  icon: '✈️', color: '#0891b2' },
-    food:    { label: 'Food',    icon: '🍽️', color: '#dc2626' },
-    plan:    { label: 'Plan',    icon: '📋', color: '#059669' },
-    social:  { label: 'Social',  icon: '🎉', color: '#db2777' },
-    other:   { label: 'Other',   icon: '📌', color: '#6b7280' },
-  };
+  // ── Event Type Config (mirrors inline script; reads live from window.EVENT_TYPES) ──
+  // We use window.EVENT_TYPES (set in index.html) so color changes propagate everywhere.
+  // For convenience, alias it:
+  function getTypes() { return window.EVENT_TYPES; }
 
   function encodeEventType(type, description) {
     return `[type:${type}]${description ? '\n' + description : ''}`;
   }
 
   function decodeEventType(description) {
+    const types = getTypes();
     if (!description) return { type: 'other', description: '' };
     const match = description.match(/^\[type:(\w+)\]/);
     if (match) {
       const type = match[1];
       const desc = description.replace(/^\[type:\w+\]\n?/, '');
-      return { type: EVENT_TYPES[type] ? type : 'other', description: desc };
+      return { type: types[type] ? type : 'other', description: desc };
     }
     return { type: 'other', description };
   }
@@ -236,13 +230,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('eventDescription').value = '';
     modalError.textContent = '';
 
-    // Reset event type to 'study'
     selectedEventType = 'study';
     document.querySelectorAll('.event-type-btn').forEach(btn => {
       btn.classList.toggle('selected', btn.dataset.type === 'study');
     });
 
-    // Reset clock state
     clockMode = null;
     timeState = {
       startHour: 9,  startMin: 0,  startAmpm: 'AM',
@@ -259,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
     eventModal?.classList.remove('active');
     modalOverlay?.classList.remove('active');
     document.getElementById('clockPicker')?.classList.remove('visible');
-    // Reset edit mode
     delete saveEventBtn.dataset.editId;
     document.querySelector('#eventModal .modal-header h3').textContent = 'New Event';
     saveEventBtn.textContent = 'Save Event';
@@ -302,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       if (editId) {
-        // ── Update existing event ──
         await gapi.client.calendar.events.patch({
           calendarId: 'primary',
           eventId: editId,
@@ -320,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
           },
         });
       } else {
-        // ── Create new event ──
         await gapi.client.calendar.events.insert({
           calendarId: 'primary',
           resource: {
@@ -350,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Event Detail Modal ──
   function openEventDetail(event) {
+    const types = getTypes();
     const start = new Date(event.start.dateTime || event.start.date);
     const end   = new Date(event.end.dateTime   || event.end.date);
 
@@ -358,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
       : 'All day';
 
     const { type, description } = decodeEventType(event.description);
-    const typeConfig = EVENT_TYPES[type] || EVENT_TYPES.other;
+    const typeConfig = types[type] || types.other;
 
     const detail = document.getElementById('eventDetailModal');
     document.getElementById('detailTitle').textContent       = event.summary || 'Untitled';
@@ -370,7 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
     badge.textContent      = `${typeConfig.icon} ${typeConfig.label}`;
     badge.style.background = typeConfig.color;
 
-    // Store full event for editing
     detail.dataset.eventId   = event.id;
     detail.dataset.eventJson = JSON.stringify(event);
 
@@ -388,17 +377,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const detail = document.getElementById('eventDetailModal');
     const event  = JSON.parse(detail.dataset.eventJson);
 
-    // Close detail modal
     detail.classList.remove('active');
     document.getElementById('modalOverlay').classList.remove('active');
 
-    // Open create modal (resets fields), then override with event data
     openModal();
 
     const start = new Date(event.start.dateTime || event.start.date);
     const end   = new Date(event.end.dateTime   || event.end.date);
 
-    // Pre-fill title, date, description
     document.getElementById('eventTitle').value       = event.summary || '';
     document.getElementById('eventDescription').value = decodeEventType(event.description).description || '';
 
@@ -407,14 +393,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const dd   = String(start.getDate()).padStart(2, '0');
     document.getElementById('eventDate').value = `${yyyy}-${mm}-${dd}`;
 
-    // Pre-fill event type
     const { type } = decodeEventType(event.description);
     selectedEventType = type;
     document.querySelectorAll('.event-type-btn').forEach(btn => {
       btn.classList.toggle('selected', btn.dataset.type === type);
     });
 
-    // Pre-fill time
     timeState.startHour  = start.getHours() % 12 || 12;
     timeState.startMin   = start.getMinutes();
     timeState.startAmpm  = start.getHours() < 12 ? 'AM' : 'PM';
@@ -423,7 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
     timeState.endAmpm    = end.getHours() < 12 ? 'AM' : 'PM';
     updateTimeDisplays();
 
-    // Switch modal to edit mode
     document.querySelector('#eventModal .modal-header h3').textContent = 'Edit Event';
     saveEventBtn.textContent    = 'Update Event';
     saveEventBtn.dataset.editId = event.id;
@@ -457,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Content Click Handler ──
   document.getElementById('content')?.addEventListener('click', (e) => {
-    // Check for event click FIRST
     const eventEl = e.target.closest('.event');
     if (eventEl) {
       e.stopPropagation();
@@ -466,7 +448,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Click on empty cell → open modal pre-filled
     const cell = e.target.closest('.day-cell');
     if (!cell) return;
 
@@ -511,6 +492,167 @@ document.addEventListener('DOMContentLoaded', () => {
     timeState.endAmpm  = endAmpm;
 
     updateTimeDisplays();
+  });
+
+  // ═══════════════════════════════════════════════════
+  // ── Color Customization Modal ──
+  // ═══════════════════════════════════════════════════
+
+  const colorModal     = document.getElementById('colorModal');
+  const colorModalOverlay = document.getElementById('modalOverlay'); // reuses same overlay
+  const colorGrid      = document.getElementById('colorCustomizerGrid');
+
+  // Preset palette swatches — a curated set of accessible colors
+  const COLOR_PRESETS = [
+    '#2563eb', '#1d4ed8', '#3b82f6', '#60a5fa',  // blues
+    '#7c3aed', '#6d28d9', '#8b5cf6', '#a78bfa',  // purples
+    '#db2777', '#be185d', '#ec4899', '#f472b6',  // pinks
+    '#dc2626', '#b91c1c', '#ef4444', '#f87171',  // reds
+    '#d97706', '#b45309', '#f59e0b', '#fbbf24',  // ambers
+    '#059669', '#047857', '#10b981', '#34d399',  // greens
+    '#0891b2', '#0e7490', '#06b6d4', '#22d3ee',  // cyans
+    '#6b7280', '#4b5563', '#9ca3af', '#374151',  // grays
+  ];
+
+  function buildColorModal() {
+    const types = getTypes();
+    colorGrid.innerHTML = '';
+
+    Object.keys(types).forEach(typeKey => {
+      const cfg = types[typeKey];
+
+      const row = document.createElement('div');
+      row.className = 'color-row';
+      row.dataset.type = typeKey;
+
+      // Label
+      const label = document.createElement('div');
+      label.className = 'color-row-label';
+      label.innerHTML = `<span class="color-row-icon">${cfg.icon}</span><span>${cfg.label}</span>`;
+
+      // Current swatch + native color picker
+      const swatchWrap = document.createElement('div');
+      swatchWrap.className = 'color-swatch-wrap';
+
+      const swatch = document.createElement('div');
+      swatch.className = 'color-current-swatch';
+      swatch.style.background = cfg.color;
+      swatch.title = 'Click to open color picker';
+
+      const hiddenPicker = document.createElement('input');
+      hiddenPicker.type = 'color';
+      hiddenPicker.value = cfg.color;
+      hiddenPicker.className = 'color-hidden-input';
+
+      // Clicking swatch opens native picker
+      swatch.addEventListener('click', () => hiddenPicker.click());
+      hiddenPicker.addEventListener('input', (e) => {
+        applyColorChange(typeKey, e.target.value);
+        swatch.style.background = e.target.value;
+        highlightActivePreset(row, e.target.value);
+      });
+
+      swatchWrap.appendChild(swatch);
+      swatchWrap.appendChild(hiddenPicker);
+
+      // Preset swatches row
+      const presets = document.createElement('div');
+      presets.className = 'color-presets';
+
+      COLOR_PRESETS.forEach(hex => {
+        const dot = document.createElement('button');
+        dot.className = 'color-preset-dot';
+        dot.style.background = hex;
+        dot.title = hex;
+        dot.setAttribute('aria-label', `Set color to ${hex}`);
+        if (hex.toLowerCase() === cfg.color.toLowerCase()) dot.classList.add('active');
+
+        dot.addEventListener('click', () => {
+          applyColorChange(typeKey, hex);
+          // Update swatch and picker
+          swatch.style.background = hex;
+          hiddenPicker.value = hex;
+          highlightActivePreset(row, hex);
+        });
+
+        presets.appendChild(dot);
+      });
+
+      row.appendChild(label);
+      row.appendChild(swatchWrap);
+      row.appendChild(presets);
+      colorGrid.appendChild(row);
+    });
+  }
+
+  function highlightActivePreset(row, hex) {
+    row.querySelectorAll('.color-preset-dot').forEach(dot => {
+      dot.classList.toggle('active', dot.style.background === hex || hexToRgb(dot.title) === hexToRgb(hex));
+    });
+  }
+
+  // Normalize hex for comparison (browser may convert #abc → rgb())
+  function hexToRgb(hex) {
+    const c = document.createElement('canvas').getContext('2d');
+    c.fillStyle = hex;
+    return c.fillStyle;
+  }
+
+  function applyColorChange(typeKey, color) {
+    // Update runtime config
+    window.EVENT_TYPES[typeKey].color = color;
+    // Persist
+    window.saveEventTypeColors(window.EVENT_TYPES);
+    // Update CSS variable immediately
+    document.documentElement.style.setProperty(`--event-${typeKey}`, color);
+    // Update legend dot
+    const legendDot = document.querySelector(`.legend-dot.${typeKey}`);
+    if (legendDot) legendDot.style.background = color;
+    // Update event type button background (if selected)
+    const typeBtn = document.querySelector(`.event-type-btn[data-type="${typeKey}"]`);
+    if (typeBtn) typeBtn.style.setProperty('--type-color', color);
+  }
+
+  function openColorModal() {
+    buildColorModal();
+    colorModalOverlay.classList.add('active');
+    requestAnimationFrame(() => colorModal.classList.add('active'));
+  }
+
+  function closeColorModal() {
+    colorModal?.classList.remove('active');
+    // Only remove overlay if event modal isn't also open
+    if (!document.getElementById('eventModal').classList.contains('active') &&
+        !document.getElementById('eventDetailModal').classList.contains('active')) {
+      colorModalOverlay?.classList.remove('active');
+    }
+  }
+
+  document.getElementById('colorModalClose')?.addEventListener('click', closeColorModal);
+  document.getElementById('colorModalDone')?.addEventListener('click', closeColorModal);
+
+  document.getElementById('customizeColorsBtn')?.addEventListener('click', openColorModal);
+  document.getElementById('customizeColorsBtnMobile')?.addEventListener('click', openColorModal);
+
+  // Reset to defaults
+  document.getElementById('resetColors')?.addEventListener('click', () => {
+    const defaults = window.EVENT_TYPE_DEFAULTS;
+    Object.keys(defaults).forEach(typeKey => {
+      applyColorChange(typeKey, defaults[typeKey].color);
+    });
+    // Rebuild modal to reflect reset
+    buildColorModal();
+    // Re-render calendar if loaded
+    if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken()) {
+      listUpcomingEvents();
+    }
+  });
+
+  // Also re-render calendar after closing color modal (colors may have changed)
+  document.getElementById('colorModalDone')?.addEventListener('click', () => {
+    if (typeof gapi !== 'undefined' && gapi.client && gapi.client.getToken()) {
+      listUpcomingEvents();
+    }
   });
 
 });
