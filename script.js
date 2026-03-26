@@ -261,7 +261,15 @@ document.addEventListener('DOMContentLoaded', () => {
   modalClose?.addEventListener('click',  closeModal);
   modalCancel?.addEventListener('click', closeModal);
   modalOverlay?.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) closeModal();
+    if (e.target === modalOverlay) {
+      // Only close the modals that are currently active; color modal has its own close btn
+      if (document.getElementById('eventModal').classList.contains('active')) closeModal();
+      if (document.getElementById('eventDetailModal').classList.contains('active')) {
+        document.getElementById('eventDetailModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+      }
+      if (document.getElementById('colorModal').classList.contains('active')) closeColorModal();
+    }
   });
 
   // ── Save / Update Event ──
