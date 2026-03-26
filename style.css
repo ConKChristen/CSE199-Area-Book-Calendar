@@ -980,24 +980,6 @@ main {
   text-align: center;
 }
 
-/* ─── Reset Colors Button (always visible ghost) ─── */
-.btn-reset-colors {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 20px;
-  background: transparent;
-  color: var(--text-muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition);
-  visibility: visible;
-}
-.btn-reset-colors:hover { background: var(--bg); color: var(--text); border-color: var(--border-strong); }
-
 /* ─── New Event Button ─── */
 .btn-new-event {
   display: inline-flex;

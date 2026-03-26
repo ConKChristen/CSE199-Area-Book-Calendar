@@ -137,28 +137,28 @@
     </div>
   </div>
 
-  <body>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- ── Color Customization Modal ── -->
-    <div class="modal" id="colorModal">
-      <div class="modal-header">
-        <h3>Customize Event Colors</h3>
-        <button class="modal-close" id="colorModalClose">✕</button>
+  <!-- ── Color Customization Modal ── -->
+  <div class="modal" id="colorModal">
+    <div class="modal-header">
+      <h3>Customize Event Colors</h3>
+      <button class="modal-close" id="colorModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:4px;">
+        Choose a color for each event type. Changes are saved automatically.
+      </p>
+      <div class="color-customizer-grid" id="colorCustomizerGrid">
+        <!-- Rows injected by JS -->
       </div>
-      <div class="modal-body">
-        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:4px;">
-          Choose a color for each event type. Changes are saved automatically.
-        </p>
-        <div class="color-customizer-grid" id="colorCustomizerGrid">
-          <!-- Rows injected by JS -->
-        </div>
-        <div class="modal-actions" style="margin-top:8px;">
-          <button class="btn-reset-colors" id="resetColors">↺ Reset to defaults</button>
-          <button class="btn-primary" id="colorModalDone" style="min-width:unset;">Done</button>
-        </div>
+      <div class="modal-actions" style="margin-top:8px;">
+        <button class="btn-ghost" id="resetColors">↺ Reset to defaults</button>
+        <button class="btn-primary" id="colorModalDone" style="min-width:unset;">Done</button>
       </div>
     </div>
+  </div>
+
+  <body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <span class="logo-text">AreaBook</span>
