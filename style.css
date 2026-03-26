@@ -283,6 +283,33 @@ header nav { flex: 1; display: flex; justify-content: center; }
   background: rgba(79,134,247,0.15);
 }
 
+/* ─── Theme toggle ─── */
+.theme-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-toggle:hover { background: var(--border); transform: scale(1.05); }
+
+.toggle-icon { line-height: 1; }
+.dark-mode .sun { display: none; }
+.light-mode .moon { display: none; }
+body:not(.dark-mode) .moon { display: none; }
+body.dark-mode .sun { display: none; }
+
 /* ─── Theme toggle — pill ─── */
 .theme-toggle {
   position: relative;
@@ -485,8 +512,14 @@ main {
   transform: none;
 }
 
-#eventDetailModal .modal-body { overflow: visible; }
-#eventDetailModal .modal-actions { justify-content: flex-start; margin-top: 12px; }
+#eventDetailModal .modal-body {
+  overflow: visible;
+}
+
+#eventDetailModal .modal-actions {
+  justify-content: flex-start;
+  margin-top: 12px;
+}
 
 /* ─── Week Navigation ─── */
 .week-navigation {
@@ -501,13 +534,6 @@ main {
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   animation: fadeInUp 0.4s ease both;
-}
-
-/* Right-side action cluster */
-.nav-right-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .nav-arrow {
@@ -551,35 +577,6 @@ main {
   min-width: 220px;
   text-align: center;
   letter-spacing: -0.01em;
-}
-
-/* ─── Customize Colors Button ─── */
-.btn-customize-colors {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 14px;
-  background: transparent;
-  color: var(--text-muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.btn-customize-colors:hover {
-  background: var(--bg);
-  color: var(--text);
-  border-color: var(--border-strong);
-}
-
-/* Icon-only version for mobile */
-.btn-customize-colors.btn-icon-only {
-  padding: 8px 10px;
 }
 
 /* ─── Mobile Day Navigation ─── */
@@ -628,6 +625,7 @@ main {
   z-index: 10;
 }
 
+/* Day view header overrides to single column */
 .day-view-header {
   grid-template-columns: 72px 1fr !important;
 }
@@ -672,6 +670,7 @@ main {
 
 .time-row:last-child { border-bottom: none; }
 
+/* Day view time-row overrides to single column */
 .day-view-row {
   grid-template-columns: 72px 1fr !important;
 }
@@ -705,7 +704,10 @@ main {
 .day-cell:last-child { border-right: none; }
 .day-cell:hover { background: rgba(26,86,219,0.03); }
 
-.day-view-cell { border-right: none; }
+/* Day view cell fills the full column */
+.day-view-cell {
+  border-right: none;
+}
 
 /* ─── Events ─── */
 .event {
@@ -732,15 +734,15 @@ main {
   z-index: 2;
 }
 
-/* Event type colors use CSS variables so JS overrides work instantly */
-.event[data-type="study"]   { background: var(--event-study);   box-shadow: 0 2px 8px color-mix(in srgb, var(--event-study) 40%, transparent); }
-.event[data-type="task"]    { background: var(--event-task);    box-shadow: 0 2px 8px color-mix(in srgb, var(--event-task) 40%, transparent); }
-.event[data-type="meeting"] { background: var(--event-meeting); box-shadow: 0 2px 8px color-mix(in srgb, var(--event-meeting) 40%, transparent); }
-.event[data-type="travel"]  { background: var(--event-travel);  box-shadow: 0 2px 8px color-mix(in srgb, var(--event-travel) 40%, transparent); }
-.event[data-type="food"]    { background: var(--event-food);    box-shadow: 0 2px 8px color-mix(in srgb, var(--event-food) 40%, transparent); }
-.event[data-type="plan"]    { background: var(--event-plan);    box-shadow: 0 2px 8px color-mix(in srgb, var(--event-plan) 40%, transparent); }
-.event[data-type="social"]  { background: var(--event-social);  box-shadow: 0 2px 8px color-mix(in srgb, var(--event-social) 40%, transparent); }
-.event[data-type="other"]   { background: var(--event-other);   box-shadow: 0 2px 8px color-mix(in srgb, var(--event-other) 40%, transparent); }
+/* ─── Event Type Color Overrides ─── */
+.event[data-type="study"]   { background: var(--event-study);   box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+.event[data-type="task"]    { background: var(--event-task);    box-shadow: 0 2px 8px rgba(217,119,6,0.3); }
+.event[data-type="meeting"] { background: var(--event-meeting); box-shadow: 0 2px 8px rgba(124,58,237,0.3); }
+.event[data-type="travel"]  { background: var(--event-travel);  box-shadow: 0 2px 8px rgba(8,145,178,0.3); }
+.event[data-type="food"]    { background: var(--event-food);    box-shadow: 0 2px 8px rgba(220,38,38,0.3); }
+.event[data-type="plan"]    { background: var(--event-plan);    box-shadow: 0 2px 8px rgba(5,150,105,0.3); }
+.event[data-type="social"]  { background: var(--event-social);  box-shadow: 0 2px 8px rgba(219,39,119,0.3); }
+.event[data-type="other"]   { background: var(--event-other);   box-shadow: 0 2px 8px rgba(107,114,128,0.3); }
 
 .event-title {
   font-weight: 600;
@@ -788,7 +790,6 @@ main {
   flex-shrink: 0;
 }
 
-/* Legend dots also use CSS variables */
 .legend-dot.study   { background: var(--event-study); }
 .legend-dot.task    { background: var(--event-task); }
 .legend-dot.meeting { background: var(--event-meeting); }
@@ -917,11 +918,9 @@ main {
 
 .modal-close:hover { background: var(--bg); color: var(--text); }
 
+.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
 .modal-body {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   max-height: 75vh;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -1163,113 +1162,6 @@ main {
   color: white;
 }
 
-/* ═══════════════════════════════════════════════════
-   ── Color Customization Modal ──
-   ═══════════════════════════════════════════════════ */
-
-/* The color modal is a bit wider to fit the swatch grid */
-#colorModal {
-  width: min(580px, calc(100vw - 32px));
-}
-
-.color-customizer-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.color-row {
-  display: grid;
-  grid-template-columns: 110px 52px 1fr;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  transition: background var(--transition);
-}
-
-.color-row:last-child { border-bottom: none; }
-.color-row:hover { background: color-mix(in srgb, var(--accent) 4%, var(--bg)); }
-
-.color-row-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-}
-
-.color-row-icon { font-size: 1.1rem; line-height: 1; }
-
-/* Current color swatch + hidden picker */
-.color-swatch-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.color-current-swatch {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: 2px solid var(--border-strong);
-  cursor: pointer;
-  transition: transform var(--transition), box-shadow var(--transition);
-  box-shadow: var(--shadow-sm);
-  flex-shrink: 0;
-}
-
-.color-current-swatch:hover {
-  transform: scale(1.1);
-  box-shadow: var(--shadow-md);
-}
-
-/* Hide the native color input visually but keep it functional */
-.color-hidden-input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-}
-
-/* Preset color dots */
-.color-presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-}
-
-.color-preset-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.color-preset-dot:hover {
-  transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-.color-preset-dot.active {
-  border-color: var(--text);
-  transform: scale(1.15);
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text);
-}
-
 /* ─── Footer ─── */
 footer {
   border-top: 1px solid var(--border);
@@ -1338,28 +1230,23 @@ footer {
   .header-inner { gap: 16px; padding: 0 16px; }
   .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
 
+  /* Hide desktop week nav, show mobile day nav */
   #weekNav { display: none !important; }
   .mobile-day-navigation { display: flex; }
 
+  /* Override week grid to single column on mobile */
   .week-header,
   .time-row {
     grid-template-columns: 72px 1fr !important;
     min-width: unset !important;
   }
 
-  .mobile-day-navigation .nav-arrow { padding: 8px 12px; }
-
-  .event-type-grid { grid-template-columns: repeat(4, 1fr); }
-
-  /* Compact color modal rows on mobile */
-  .color-row {
-    grid-template-columns: 90px 44px 1fr;
-    gap: 8px;
-    padding: 10px 12px;
+  /* Make nav arrows compact on mobile (icon only) */
+  .mobile-day-navigation .nav-arrow {
+    padding: 8px 12px;
   }
 
-  .color-preset-dot { width: 18px; height: 18px; }
-  .color-presets { gap: 4px; }
+  .event-type-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 /* Hide desktop nav links — sidebar handles it on mobile */
