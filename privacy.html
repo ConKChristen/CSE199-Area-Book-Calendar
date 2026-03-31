@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
+    <title>Area Book Calendar</title>
     <meta charset="utf-8" />
     <meta name="description" content="Area Book Freshman Project">
     <meta name="author" content="Connor Christensen">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="goals.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
-    <title>Goals</title>
-</head>
+  </head>
 <body>
-    <!-- Add this RIGHT AFTER your opening <body> tag -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
@@ -33,11 +35,8 @@
 
     <header>
       <div class="header-inner">
-        <!-- Add this INSIDE .header-inner, before the <nav> -->
         <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Toggle menu">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </button>
         <div class="logo-mark">
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
@@ -61,18 +60,45 @@
             <li><a href="index.html" class="active">Calendar</a></li>
             <li><a href="goals.html">Goals</a></li>
             <li><a href="overview.html">Overview</a></li>
-            <li><a href="#social">Social</a></li>
           </ul>
         </nav>
 
-        <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-          <span class="toggle-icon sun">Dark Mode</span>
-          <span class="toggle-icon moon">Light Mode</span>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <div class="toggle-thumb">
+            <span class="sun">☀️</span>
+            <span class="moon">🌙</span>
+          </div>
         </button>
       </div>
     </header>
-  <p> Hello, welcome to the Goals page!</p>
-  <footer>
+    <h1>Privacy Policy</h1>
+    <p>Last updated: March 2026</p>
+
+    <p>This website, <strong>CSE199 Area Book Calendar</strong>, is a student project hosted on GitHub Pages. 
+    We respect your privacy and are committed to protecting any information you choose to share.</p>
+
+    <h2>Information We Collect</h2>
+    <p>This application may request access to your Google account information such as your name, email address, and calendar data. 
+    This information is used solely to provide functionality within the app.</p>
+
+    <h2>How Your Information Is Used</h2>
+    <ul>
+        <li>To authenticate your Google account</li>
+        <li>To display or manage calendar information within the app</li>
+        <li>To improve the functionality of the project</li>
+    </ul>
+
+    <h2>Data Storage</h2>
+    <p>No personal data is stored on our servers. All data is processed temporarily in your browser while using the app.</p>
+
+    <h2>Third‑Party Services</h2>
+    <p>This project uses Google OAuth for authentication. Your use of Google services is subject to Google’s Privacy Policy.</p>
+
+    <h2>Contact</h2>
+    <p>If you have questions about this Privacy Policy, you may contact the project developer through the GitHub repository.</p>
+</body>
+
+<footer>
       <div class="footer-inner">
         <div class="footer-brand">
           <div class="logo-mark small">
@@ -109,5 +135,4 @@
         </div>
       </div>
     </footer>
-</body>
 </html>
