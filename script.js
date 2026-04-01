@@ -1,3 +1,18 @@
+function encodeEventType(type, description) {
+  return `[type:${type}]${description ? '\n' + description : ''}`;
+}
+
+function decodeEventType(description) {
+  if (!description) return { type: 'other', description: '' };
+  const match = description.match(/^\[type:(\w+)\]/);
+  if (match) {
+    const type = match[1];
+    const desc = description.replace(/^\[type:\w+\]\n?/, '');
+    return { type: EVENT_TYPES[type] ? type : 'other', description: desc };
+  }
+  return { type: 'other', description };
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Dark Mode ──
@@ -78,20 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     other:   { label: 'Other',   icon: '📌', color: '#6b7280' },
   };
 
-  function encodeEventType(type, description) {
-    return `[type:${type}]${description ? '\n' + description : ''}`;
-  }
 
-  function decodeEventType(description) {
-    if (!description) return { type: 'other', description: '' };
-    const match = description.match(/^\[type:(\w+)\]/);
-    if (match) {
-      const type = match[1];
-      const desc = description.replace(/^\[type:\w+\]\n?/, '');
-      return { type: EVENT_TYPES[type] ? type : 'other', description: desc };
-    }
-    return { type: 'other', description };
-  }
 
   // ── Event Type Button Selection ──
   let selectedEventType = 'study';
